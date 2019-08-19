@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
+import './CameraView.css';
 
 class CameraView extends Component {
     render() {
         return (
-            <div>
-                <h2>Camera view</h2>
-       
-                <p>Duis a turpis sed lacus dapibus elementum sed eu lectus.</p>
+            <div className="cameraView">
+                <h2>Camera From the Boat</h2>    
+                <p>Not Availble Yet!</p>
             </div>
         );
     }

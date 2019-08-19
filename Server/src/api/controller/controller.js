@@ -8,9 +8,9 @@ var bcrypt = require('bcryptjs');
  
 exports.signup = (req, res) => {
   
-  verifySignUp.checkDuplicateUserNameOrEmail;
-  verifySignUp.checkRolesExisted;
-
+  verifySignUp.checkDuplicateUserNameOrEmail();
+  verifySignUp.checkRolesExisted();
+  console.log(req.body.username);
   // Save User to Database
   console.log("Processing func -> SignUp");
  

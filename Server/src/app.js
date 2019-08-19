@@ -17,14 +17,14 @@ app.use(morgan('dev'));
 app.use(helmet());
 app.use(express.json());
 app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }))
 app.use('/', router);
 app.use(middlewares.notFound);
 app.use(middlewares.errorHandler);
 // End here
 
 // MQTT Client Initialize the connection
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }))
 const mqttClient = new mqttHandler();
 mqttClient.connect();
 // End here
@@ -51,7 +51,6 @@ const server = app.listen(config.port, function () {
   //var port = server.address().port
   console.log("App listening at http://localhost:%s", config.port)
 })
-
 
 function initial(){
   Role.count( (err, count) => {

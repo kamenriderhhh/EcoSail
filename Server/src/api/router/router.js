@@ -13,5 +13,4 @@ router.get('/authed/admin', controller.adminBoard);
 router.get('/authed/data/getDestination', dataController.getDestination);
 router.get('/authed/data/getCurLocation', dataController.getCurLocation);
 
-
 module.exports = router;

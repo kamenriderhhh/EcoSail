@@ -152,7 +152,7 @@ class MapView extends Component {
     };
 
     render() {
-        this.updateLocation();
+        //this.updateLocation();
 
         var pos = [this.state.location.lat, this.state.location.lng];
         var dest = [this.state.location.lat, this.state.location.lng];

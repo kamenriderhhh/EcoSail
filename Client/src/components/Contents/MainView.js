@@ -6,6 +6,7 @@ class MainView extends Component {
     render() {
         return (
             <div className="main">
+                <h2>Dashboard</h2>    
                 <Container>
                     <Row className="justify-content-md-center">
                         <Col xs lg="5">
