@@ -1,6 +1,11 @@
 import React from 'react';
 import { NavLink } from "react-router-dom";
 import './SideDrawer.css';
+import logo from '../Image/logo.png'; 
+import imgDashboard from "../Image/dashboard.png";
+import imgData from "../Image/data.png";
+import imgCamera from "../Image/camera.png";
+import imgMap from "../Image/map.png";
 
 const sideDrawer = props => {
     
@@ -12,14 +17,28 @@ const sideDrawer = props => {
     return (
         <nav className={drawerClasses}>
             <div className="picture">
-                <label>picture here</label>
+                <img className="darwer-img" src={logo} alt="Avatar"/>   
             </div>
+            <div className="drawerFrame">
             <ul>
-                <li><NavLink to="/">Main</NavLink></li>
-                <li><NavLink to="/map">Map</NavLink></li>
-                <li><NavLink to="/camera">Camera</NavLink></li>
-                <li><NavLink to="/data">Data</NavLink></li>
+                <li><NavLink to="/">
+                    <img className="sideDrawer-icon" src={imgDashboard} alt="Dashboard"/>
+                    Dashboard
+                </NavLink></li>
+                <li><NavLink to="/map">
+                    <img className="sideDrawer-icon" src={imgMap} alt="Map"/>
+                    Map
+                </NavLink></li>
+                <li><NavLink to="/camera">
+                    <img className="sideDrawer-icon" src={imgCamera} alt="Camera"/>
+                    Camera
+                </NavLink></li>
+                <li><NavLink to="/data">
+                    <img className="sideDrawer-icon" src={imgData} alt="Data"/>
+                    Data
+                </NavLink></li>  
             </ul>
+            </div>
         </nav>
     );
 };
