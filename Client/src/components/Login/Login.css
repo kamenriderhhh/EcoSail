@@ -1,0 +1,27 @@
+/* Desktop App View */
+@media (min-width: 769px) {
+    .Login {
+      padding: 60px 0px;
+      margin-top: 60px;
+    }
+  
+    .Login form {
+      margin: 0 auto;
+      max-width: 500px;
+    }
+}
+
+/* Modile App View */
+@media (max-width: 768px) {
+    .Login {
+        padding: 60px 0px;
+        margin-top: 60px;
+    }
+    
+    .Login form {
+        margin: 0 auto;
+        max-width: auto;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+}
