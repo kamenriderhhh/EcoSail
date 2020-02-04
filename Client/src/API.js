@@ -18,7 +18,7 @@ export function getDestination() {
         });
 }
 
-// Get boat current location from database
+// Get boat sensors information from database
 export function getSensorData() {
     return fetch(getSensorNodes)
         .then(res => res.json())
@@ -27,13 +27,17 @@ export function getSensorData() {
         });
 }
 
-// Get boat current location from database
-export function getSensorHistData() {
-    return fetch(getHistoricalData)
-        .then(res => res.json())
-        .then(HistData => {
-            return HistData;
-        });
+// Post options to get boat sensors information from database
+export function getSensorHistData(HistDataOptions) {
+    return fetch(getHistoricalData, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(HistDataOptions)
+    }).then(res => res.json()).then(HistData => {
+        return HistData;
+    });
 }
 
 // Post the destination set by user

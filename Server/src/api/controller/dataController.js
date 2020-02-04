@@ -3,35 +3,34 @@ const Joi = require('joi');
 
 const db = require('../db');
 const Destination = db.get('destination');//db.get('destination');
-const CurLocation = db.get('curLocation');//db.get('curLocation');
 const SensorNodes = db.get('sensorNodes');//db.get('cursensorNodes');
 
 // Schema
 const locSchema = require('../model/location');
 
-// Get the current location of the boat
-exports.getCurLocation = (req, res) => {
-    CurLocation.find()
-      .then(curLoc => {
-          res.json(curLoc[curLoc.length-1]);
-      });
-}
-
 // Get the sensornodes data from the boat
 exports.getSensorNodes = (req, res) => {
-    SensorNodes.find()
-      .then(sensorData => {
-          res.json(sensorData[sensorData.length-1]);
-      });
+  SensorNodes.find()
+    .then(sensorData => {
+        res.json(sensorData[sensorData.length-1]);
+    });
 }
 
 // Get the sensornodes historical data from the MongoDB
 exports.getSensorHistData = (req, res) => {
-  SensorNodes.find()
+  const reqStartDate = new Date(req.body.startDate);
+  const reqEndDate = new Date(req.body.endDate);
+  SensorNodes.find({date: {$gte: reqStartDate, $lte: reqEndDate} })
     .then(sensorData => {
-        res.json(sensorData[sensorData.length-1]); 
+        res.json(sensorData); 
+        //console.log(sensorData.length);
         //get min,max,avg value for each sensors
     });
+  /*  
+  res.status(200).send({ auth: true, accessToken: token });
+  return res.status(500).send({
+        message: "Error retrieving email = " + req.body.email
+  });*/
 }
 
 // Get the destination for the boat

@@ -44,7 +44,7 @@ class App extends Component {
     this.setState({
       login: !this.state.login
     }, ()=>{
-      console.log(this.state.login)
+      //console.log(this.state.login)
     });
   }
 

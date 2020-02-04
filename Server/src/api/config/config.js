@@ -22,5 +22,5 @@ module.exports = {
   SUBSurl: process.env.SUBSDB,
   topic: process.env.TOPIC,
   // Logo
-  logo: process.env.LOGO
+  logo: process.env.LOGO,
 };

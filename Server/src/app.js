@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const config = require('./api/config/config.js');
 const router = require('./api/router/router.js');
 const Role = require('./api/model/role.js');
+const mongoose = require('mongoose');
 
 // App configuration
 const middlewares = require('./api/middlewares');
@@ -37,6 +38,19 @@ const mqttClient = new mqttHandler();
 mqttClient.connect();
 // End here
 
+// Connecting to the Authentication database
+mongoose.Promise = global.Promise; // This is needed for mongoose to globally connected
+mongoose.connect(config.DBurl)
+  .then(() => {
+    console.log("Successfully connected to EcoSail MongooseDB.");    
+    //initial();
+  })
+  .catch(err => {
+      console.log('Could not connect to EcoSail MongooseDB.');
+      process.exit();  
+  });
+// End here
+
 // Create a Server
 /*const server = app.listen(config.port, function () {
   //var host = server.address().address
@@ -47,10 +61,10 @@ https.createServer(options, app).listen(config.port, ()=>{
   console.log("App listening at https://localhost:%s", config.port)
 });
 
-const {sendFcmMessage}= require('./api/notification/firebase');
-sendFcmMessage(config.topic, "Ecosail", "could it be2");
-//setTimeout(()=>{sendFcmMessage(config.topic, "Ecosail", "New");}, 3000);
 
+//const {sendFcmMessage}= require('./api/notification/firebase');
+//sendFcmMessage(config.topic, "Alohaas5", "could it be5");
+//setTimeout(()=>{sendFcmMessage(config.topic, "Ecosail", "New");}, 3000);
 
 /*
 function initial(){

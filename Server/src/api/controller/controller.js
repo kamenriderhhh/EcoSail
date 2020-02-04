@@ -6,22 +6,6 @@ const authJwt = require('./verifyJwtToken');
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
 var CryptoJS = require("crypto-js");
-const mongoose = require('mongoose');
-
-function dbConnect(){
-  // Connecting to the Authentication database
-  mongoose.Promise = global.Promise; // This is needed for mongoose to globally connected
-  mongoose.connect(config.DBurl)
-    .then(() => {
-      console.log("Successfully connected to MongooseDB for Authentication.");    
-      //initial();
-    })
-    .catch(err => {
-        console.log('Could not connect to MongooseDB for Authentication.');
-        process.exit();  
-    });
-}
-
  
 exports.signup = (req, res) => {
   
@@ -44,7 +28,6 @@ exports.signup = (req, res) => {
         });*/
     });
   
-    dbConnect();
     // Save a User to the MongoDB
     user.save().then(savedUser => {
     /*Role.find({
@@ -76,7 +59,6 @@ exports.signup = (req, res) => {
  
 exports.signin = (req, res) => {
   console.log("Sign-In");
-  dbConnect();
   // Check whether the user exist in DB
   User.findOne({ email: req.body.email })
   .exec((err, user) => {
@@ -115,7 +97,6 @@ exports.signin = (req, res) => {
 }
  
 exports.userContent = (req, res) => {
-  dbConnect();
   authJwt.verifyToken;
   
   User.findOne({ _id: req.userId })

@@ -10,6 +10,7 @@ const router = express.Router();
 router.post('/auth/signup', verifySignUp.checkDuplicateUserNameOrEmail, controller.signup);
 router.post('/auth/signin', controller.signin);
 router.post('/authed/data/postDestination', dataController.postDestination);
+router.post('/authed/data/getHistoricalData', dataController.getSensorHistData);
 
 // Notification functions
 router.post('/notification/storetoken', async (req, res) => {
@@ -61,8 +62,6 @@ router.post('/notification/unsubscribe', async(req, res) => {
 //router.get('/authed/user', authJwt.verifyToken, controller.userContent);
 //router.get('/authed/admin', authJwt.verifyToken, authJwt.isPmOrAdmin, controller.adminBoard);
 router.get('/authed/data/getDestination', dataController.getDestination);
-router.get('/authed/data/getCurLocation', dataController.getCurLocation);
 router.get('/authed/data/getSensorNodes', dataController.getSensorNodes);
-router.get('/authed/data/getHistoricalData', dataController.getSensorHistData);
 
 module.exports = router;
