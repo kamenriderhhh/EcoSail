@@ -25,6 +25,7 @@
     "dotenv": "^6.2.0",
     "express": "^4.17.0",
     "firebase-admin": "^8.9.2",
+    "getstream": "^4.4.0",
     "helmet": "^3.21.2",
     "joi": "^14.3.1",
     "jsonwebtoken": "^8.5.1",

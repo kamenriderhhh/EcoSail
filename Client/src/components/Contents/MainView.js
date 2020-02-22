@@ -1,4 +1,4 @@
-﻿import React, { Component } from 'react';
+import React, { Component } from 'react';
 import { Card, CardTitle, CardText, CardColumns, 
     Form, FormGroup, Label, Input } from 'reactstrap';
 //import Switch from '../Switch/Switch.js';
@@ -42,7 +42,7 @@ class MainView extends Component {
                     pHValue: sensorNodes.pHValue,
                     doValue: sensorNodes.doValue,
                     ecValue: sensorNodes.ecValue,
-                    turbValue: sensorNodes.turbValue
+                    turbValue: sensorNodes.turbidity
                 });
             }
         );
@@ -94,11 +94,11 @@ class MainView extends Component {
                             <ReactSpeedometer 
                                 fluidWidth={true}
                                 maxValue={14}
-                                minValue={1}
+                                minValue={0}
                                 value={this.state.pHValue}
                                 needleColor={needleColor}
                                 startColor="red"
-                                segments={14}
+                                segments={15}
                                 endColor="green"
                                 currentValueText="Current Value: ${value}"
                             />
@@ -133,7 +133,7 @@ class MainView extends Component {
                             <div className='gauge'>
                             <ReactSpeedometer 
                                 fluidWidth={true}
-                                maxValue={20}
+                                maxValue={100}
                                 minValue={0}
                                 value={this.state.ecValue}
                                 needleColor={needleColor}

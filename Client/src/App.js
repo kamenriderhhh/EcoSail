@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Route, HashRouter } from "react-router-dom";
+import { Route, HashRouter, Redirect } from "react-router-dom";
 // Component for side drawer and toolbar
 import Toolbar from './components/Toolbar/Toolbar';
 import SideDrawer from './components/SideDrawer/SideDrawer';
@@ -9,6 +9,7 @@ import MapView from './components/Contents/MapView';
 import CameraView from './components/Contents/CameraView';
 import DataView from './components/Contents/DataView';
 import Login from "./components/Login/Login";
+import Mainpage from "./components/Mainpage/Mainpage";
 
 class App extends Component {
 
@@ -16,9 +17,18 @@ class App extends Component {
     //sideDrawer 
     sideDrawerOpen: false,
     boatID: 1,
-    login: false,
+    login: false, //default fault
+    token: null, //notification feed
     //need to gather the list of boatID from database
   }
+  
+  setToken = (value) => {
+    this.setState({
+      token: value
+    },()=>{
+      //console.log('token: '+this.state.token)
+    });
+  };
   
   // Sidedrawer function
   drawerToggleClickHandler = () => {
@@ -44,7 +54,7 @@ class App extends Component {
     this.setState({
       login: !this.state.login
     }, ()=>{
-      //console.log(this.state.login)
+      console.log(this.state.login);
     });
   }
 
@@ -59,13 +69,14 @@ class App extends Component {
     return (
       <HashRouter>
         <div style={{height: '100%'}}>
-          <Toolbar loginStatus={this.state.login} login={this.userLogin} drawerClickHandler={this.drawerToggleClickHandler}/> 
+          <Toolbar loginStatus={this.state.login} login={this.userLogin} drawerClickHandler={this.drawerToggleClickHandler} token={this.state.token}/> 
           <SideDrawer show={this.state.sideDrawerOpen} clsDrawer={backdrop} loginStatus={this.state.login} login={this.userLogin}/>
           {backdrop}
           {
             this.state.login === false ?
             <div className="content">
-              <Route exact path="/" render={(props)=><Login {...props} userLogin={this.userLogin} loginStatus={this.state.login}/>}/>
+              <Route exact path="/" render={(props)=><Mainpage {...props} userLogin={this.userLogin} loginStatus={this.state.login}/>}/>
+              <Route path="/login" render={(props)=><Login {...props} userLogin={this.userLogin} loginStatus={this.state.login} setToken={this.setToken}/>}/>
             </div>
             :
             <div className="content">
@@ -73,6 +84,7 @@ class App extends Component {
               <Route path="/map" render={(props)=><MapView {...props} selectedBID={this.state.boatID}/>}/>
               <Route path="/camera" render={(props)=><CameraView {...props} selectedBID={this.state.boatID}/>}/>
               <Route path="/data" render={(props)=><DataView {...props} selectedBID={this.state.boatID}/>}/>
+              <Redirect to="/"/>
             </div>
           }
         </div>

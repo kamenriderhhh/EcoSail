@@ -68,7 +68,7 @@ class DataView extends Component {
             pHValue[counter] = pHValue[counter]+parseFloat(element.pHValue);
             doValue[counter] = doValue[counter]+parseFloat(element.doValue);
             ecValue[counter] = ecValue[counter]+parseFloat(element.ecValue);
-            turbValue[counter] = turbValue[counter]+parseFloat(element.turbValue);
+            turbValue[counter] = turbValue[counter]+parseFloat(element.turbidity);
             interCounter[counter]++;
             console.log('hello');
         });

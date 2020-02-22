@@ -23,4 +23,7 @@ module.exports = {
   topic: process.env.TOPIC,
   // Logo
   logo: process.env.LOGO,
+  //notification feed with stream
+  streamKey: process.env.STREAMKEY,
+  streamSec: process.env.STREAMSECRET,
 };

@@ -25,3 +25,10 @@
         padding-right: 10px;
     }
 }
+
+.Login {
+    background-image: url('../Image/ocean.jpg');
+    background-repeat: no-repeat;
+    background-position: center; 
+    background-size: cover;
+}

@@ -5,6 +5,8 @@ const db = require('../db');
 const Destination = db.get('destination');//db.get('destination');
 const SensorNodes = db.get('sensorNodes');//db.get('cursensorNodes');
 
+const mqttClient = require('../../app.js');
+
 // Schema
 const locSchema = require('../model/location');
 
@@ -13,6 +15,7 @@ exports.getSensorNodes = (req, res) => {
   SensorNodes.find()
     .then(sensorData => {
         res.json(sensorData[sensorData.length-1]);
+        console.log()
     });
 }
 
@@ -56,6 +59,8 @@ exports.postDestination = (req, res) => {
           .insert(boatLocation)
           .then(insertedMessage => {
             res.json(insertedMessage);
+            // Update the destination file for linefollowing.txt in node
+            mqttClient.post();
           });
     } else {
         next(result.error);

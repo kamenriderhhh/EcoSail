@@ -3,9 +3,15 @@ const Role = require('../model/role');
 const User = require('../model/user');
 const verifySignUp = require('./verifySignUp');
 const authJwt = require('./verifyJwtToken');
+const stream = require('getstream'); // notification feed
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
 var CryptoJS = require("crypto-js");
+const client = stream.connect(
+  config.streamKey,
+  config.streamSec
+);
+exports.client = client;
  
 exports.signup = (req, res) => {
   
@@ -62,8 +68,8 @@ exports.signin = (req, res) => {
   // Check whether the user exist in DB
   User.findOne({ email: req.body.email })
   .exec((err, user) => {
-    if (err){
-      if(err.kind === 'ObjectId' || !user) {
+    if (err || !user){
+      if(!user || err.kind === 'ObjectId') {
         return res.status(404).send({
           message: "Email not found = " + req.body.email
         });                
@@ -85,14 +91,42 @@ exports.signin = (req, res) => {
       user.password
     );
     if (!passwordIsValid) {
-      return res.status(401).send({ auth: false, accessToken: null, reason: "Invalid Password!" });
+      return res.status(401).send({ 
+        auth: false, 
+        accessToken: null, 
+        reason: "Invalid Password!" 
+      });
     }      
     
     var token = jwt.sign({ id: user._id }, config.secret, {
       expiresIn: 86400 // expires in 24 hours
     });
     
-    res.status(200).send({ auth: true, accessToken: token });
+    //const userToken = client.createUserToken((user._id).toString()); // for notification feeds
+    const userToken = client.createUserToken('Ecosail'); // for notification feeds
+    /*const sensorData = {
+        a:3.2,
+        b:5.1,
+        c:66.2,
+        d:88,
+        e:2636.1,
+        date: new Date()
+      };
+    
+    const ecosail = client.feed('timeline', 'Ecosail');
+    ecosail.addActivity({
+        actor: 'Ecosail',
+        verb: 'post',
+        object: sensorData, //'somethingGood',
+    }).then((err)=>{
+        console.log(err)
+    });*/
+    
+    res.status(200).send({ 
+      auth: true, 
+      accessToken: userToken,
+      //id: (user._id).toString()
+    });
   });
 }
  

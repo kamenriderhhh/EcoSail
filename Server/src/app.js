@@ -36,6 +36,8 @@ const options = {
 // MQTT Client Initialize the connection
 const mqttClient = new mqttHandler();
 mqttClient.connect();
+exports.mqttClient = mqttClient;
+//mqttClient.post();
 // End here
 
 // Connecting to the Authentication database
@@ -63,8 +65,12 @@ https.createServer(options, app).listen(config.port, ()=>{
 
 
 //const {sendFcmMessage}= require('./api/notification/firebase');
-//sendFcmMessage(config.topic, "Alohaas5", "could it be5");
+//sendFcmMessage(config.topic, "Ecsail", "could it be5");
 //setTimeout(()=>{sendFcmMessage(config.topic, "Ecosail", "New");}, 3000);
+/*var date= new Date().toISOString().
+  replace(/T/, ' ').      // replace T with a space
+  replace(/\..+/, '')     // delete the dot and everything after
+;*/
 
 /*
 function initial(){

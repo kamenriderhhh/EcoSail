@@ -8,6 +8,10 @@ import imgData from "../Image/data.png";
 import imgCamera from "../Image/camera.png";
 import imgMap from "../Image/map.png";
 import imgLogout from "../Image/logout.png";
+import imgLogin from "../Image/login.png";
+// Notification feed
+import { StreamApp, NotificationDropdown, FlatFeed} from 'react-activity-feed';
+import 'react-activity-feed/dist/index.es.css';
 
 const toolbar = props => (
     <header className="toolbar border">
@@ -24,6 +28,24 @@ const toolbar = props => (
                     <h2>ECOSAIL</h2>
                 </div>
                 <div className="spacer" />
+                <div style={{margin: '0 auto', marginTop: "0px", marginRight: "20px" }}>
+                    <StreamApp
+                        apiKey={process.env.REACT_APP_STREAM_KEY}
+                        appId={process.env.REACT_APP_STREAM_ID}
+                        token={props.token}
+                    >
+                        <NotificationDropdown
+                            notify={true}
+                            right
+                            feedGroup="timeline"
+                            Group={(group) => console.log(group) || 
+                                <div style={{borderBottom: '1.0px solid'}}>
+                                    Message: {group.activityGroup.object}
+                                </div>
+                            }
+                        />
+                    </StreamApp>
+                </div>
                 <div className="toolbar_navigation-items">
                     <ul>
                         <li><NavLink to="/">
@@ -33,10 +55,6 @@ const toolbar = props => (
                         <li><NavLink to="/map">
                             <img className="toolbar-icon" src={imgMap} alt="Map"/>
                             Map
-                        </NavLink></li>
-                        <li><NavLink to="/camera">
-                            <img className="toolbar-icon" src={imgCamera} alt="Camera"/>
-                            Camera
                         </NavLink></li>
                         <li><NavLink to="/data">
                             <img className="toolbar-icon" src={imgData} alt="Data"/>
@@ -51,10 +69,21 @@ const toolbar = props => (
             </nav>
             :
             <nav className="toolbar__navigation" style={{display:"flex", justifyContent:"center"}}>
-                <h2>Welcome to ECOSAIL</h2>
+                <div className="toolbar__logo">
+                    <img className="toolbar-logo" src={imgLogo} alt="Logo"/>
+                </div>
+                <div className="toolbar__title">
+                    <h2>ECOSAIL</h2>
+                </div>
+                <div className="spacer" />
+                <div className="toolbar_navigation-item">
+                    <NavLink to="/login" style={{color: "black", textDecoration: 'none'}}>
+                        <img className="toolbar-icon" src={imgLogin} alt="Login"/>
+                        Login       
+                    </NavLink>
+                </div>    
             </nav>
-        }
-        
+        }       
     </header>
 );
 

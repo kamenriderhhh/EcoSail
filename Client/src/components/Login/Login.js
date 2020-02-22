@@ -45,6 +45,7 @@ export default function Login(props) {
   // Login function
   const handleLoginClick = () => {
     setLoadingLogin(true);
+    console.log(typeof(process.env.REACT_APP_TR));
     const sgnin = {
       email: document.getElementById("email").value, 
       password: CryptoJS.AES.encrypt(document.getElementById("password").value, secret).toString()
@@ -64,6 +65,7 @@ export default function Login(props) {
         // Login successful
         displayMessage(<span>Successfully login</span>);
         //console.log("Successfully login!");
+        props.setToken(result.accessToken);
         props.userLogin();
       }
       setTimeout(() => {setLoadingLogin(false);}, 4000);
@@ -126,12 +128,12 @@ export default function Login(props) {
         <Row>
           <Col>
             <Button id="loginBtn" block bssize="large" disabled={!validateForm() || isLoadingLogin || isLoadingSignup} type="submit" onClick={!isLoadingLogin ? handleLoginClick : null}>
-              {isLoadingLogin ? 'Loading...' : 'Login'}
+              {isLoadingLogin ? 'Loading…' : 'Login'}
             </Button>
           </Col>
           <Col>
             <Button id="signupBtn" block bssize="large" disabled={!validateForm() || isLoadingLogin || isLoadingSignup} type="submit" onClick={!isLoadingSignup ? handleSignupClick : null}>
-              {isLoadingSignup ? 'Loading...' : 'Signup'}
+              {isLoadingSignup ? 'Loading…' : 'Signup'}
             </Button>
           </Col>
         </Row>

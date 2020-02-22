@@ -3,6 +3,7 @@ const db = require('../db');
 const config = require('../config/config');
 const { sendFcmMessage } = require('../notification/firebase');
 const sensorNodes = db.get('sensorNodes');
+const { client } = require('../controller/controller');
 
 class MqttHandler {
   constructor() {
@@ -10,6 +11,7 @@ class MqttHandler {
     this.host = config.MQTT[0];
     this.username = config.MQTT[1];
     this.password = config.MQTT[2];
+    this.holdForNotification = 0;
   }
   
   connect() {
@@ -54,20 +56,59 @@ class MqttHandler {
         turbidity,
         date: new Date()
       };
-      //console.log(boatLocation);
+      //console.log(sensorData);
       sensorNodes.insert(sensorData);
       
       // Check if the values exceed threshold then send notification
-      if(str[4]<6.5 || str[4]>9.0){ // 6.5<= pH <=9.0
-          sendFcmMessage(config.topic, 'This location is infected(pH out of range)', str);
-      } else if(str[6]>=30){
-          sendFcmMessage(config.topic, 'This location is infected(EC exceeded 30mg/L)', str);
+      if(this.holdForNotification == 0){
+          if(str[4]<6.5 || str[4]>9.0){ // 6.5<= pH <=9.0
+              sendFcmMessage(config.topic, 'This location is infected(pH out of safe range)', JSON.stringify(sensorData));
+              
+              sensorData.date=sensorData.date.toISOString().replace(/T/, ' ').replace(/\..+/, '');
+              const ecosail = client.feed('timeline', 'Ecosail');
+              ecosail.addActivity({
+                  actor: 'Ecosail',
+                  verb: 'post',
+                  object: JSON.stringify(sensorData),
+              }).then((err)=>{
+                  console.log(err)
+              });
+          } else if(str[6]>=30){
+              sendFcmMessage(config.topic, 'This location is infected(EC exceeded 30mg/L)', JSON.stringify(sensorData));
+              
+              sensorData.date=sensorData.date.toISOString().replace(/T/, ' ').replace(/\..+/, '');
+              const ecosail = client.feed('timeline', 'Ecosail');
+              ecosail.addActivity({
+                  actor: 'Ecosail',
+                  verb: 'post',
+                  object: JSON.stringify(sensorData),
+              }).then((err)=>{
+                  console.log(err)
+              });
+          } /*else if(str[5]>=??){
+              sendFcmMessage(config.topic, 'This location is infected(DO exceeded ??)', JSON.stringify(sensorData));
+          }*/
+          this.holdForNotification = 60; // 5 seconds per data income, 60 seconds per notification if triggered
+      } else {
+          this.holdForNotification = this.holdForNotification - 5 ;
       }
+     
     });
 
     this.mqttClient.on('close', () => {
       console.log(`mqtt client disconnected`);
     });
+  }
+  
+  post() {
+    console.log('mqtt post ok');
+    /*// mqtt subscriptions
+    this.mqttClient.subscribe('destination', {qos: 0});
+
+    // When a message arrives, console.log it
+    this.mqttClient.on('message', function (topic, message) {
+      var str = message.toString();
+    });*/
   }
 
 }

@@ -34,10 +34,6 @@ const sideDrawer = props => {
                     <img className="sideDrawer-icon" src={imgMap} alt="Map"/>
                     Map
                 </NavLink></li>
-                <li><NavLink to="/camera">
-                    <img className="sideDrawer-icon" src={imgCamera} alt="Camera"/>
-                    Camera
-                </NavLink></li>
                 <li><NavLink to="/data">
                     <img className="sideDrawer-icon" src={imgData} alt="Data"/>
                     Data

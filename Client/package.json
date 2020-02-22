@@ -54,6 +54,7 @@
     "postcss-preset-env": "6.6.0",
     "postcss-safe-parser": "4.0.1",
     "react": "^16.8.6",
+    "react-activity-feed": "^0.9.26",
     "react-app-polyfill": "^1.0.1",
     "react-bootstrap": "^1.0.0-beta.16",
     "react-chartjs-2": "^2.8.0",
