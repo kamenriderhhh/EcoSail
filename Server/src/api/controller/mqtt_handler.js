@@ -11,10 +11,11 @@ class MqttHandler {
     this.host = config.MQTT[0];
     this.username = config.MQTT[1];
     this.password = config.MQTT[2];
-    this.holdForNotification = 0;
+    this.holdForNotification = new Number();
   }
   
   connect() {
+    this.holdForNotification = 0;
     // Connect mqtt with credentials (in case of needed, otherwise we can omit 2nd param)
     //this.mqttClient = mqtt.connect(this.host, { username: this.username, password: this.password });
     this.mqttClient = mqtt.connect(this.host, { username: this.username, password: this.password }, config.MQTT[3]);
@@ -27,28 +28,30 @@ class MqttHandler {
 
     // Connection callback
     this.mqttClient.on('connect', () => {
-      console.log(`mqtt client connected`);
+      console.log("mqtt client connected");
     });
 
     // mqtt subscriptions
     this.mqttClient.subscribe('sensornodes', {qos: 0});
 
     // When a message arrives, console.log it
-    this.mqttClient.on('message', function (topic, message) {
+    this.mqttClient.on('message', function (topic, message) {   
       var str = message.toString();
       str = str.substring(0, str.length).split('#');
       const boatID = str[0];
       const latitude = str[1];
       const longitude = str[2];
-      const tempValue = str[3];
-      const pHValue = str[4];
-      const doValue = str[5];
-      const ecValue = str[6];
-      const turbidity = str[7];
+      const windDirection = str[3];
+      const tempValue = str[4];
+      const pHValue = str[5];
+      const doValue = str[6];
+      const ecValue = str[7];
+      const turbidity = str[8];
       const sensorData = {
         boatID,
         latitude,
         longitude,
+        windDirection,
         tempValue,
         pHValue,
         doValue,
@@ -56,41 +59,82 @@ class MqttHandler {
         turbidity,
         date: new Date()
       };
-      //console.log(sensorData);
+      console.log("New data insert to database...");
       sensorNodes.insert(sensorData);
       
-      // Check if the values exceed threshold then send notification
-      if(this.holdForNotification == 0){
-          if(str[4]<6.5 || str[4]>9.0){ // 6.5<= pH <=9.0
-              sendFcmMessage(config.topic, 'This location is infected(pH out of safe range)', JSON.stringify(sensorData));
-              
-              sensorData.date=sensorData.date.toISOString().replace(/T/, ' ').replace(/\..+/, '');
-              const ecosail = client.feed('timeline', 'Ecosail');
+      // Check is it past the period for the next notification to send
+      if(this.holdForNotification == 0){ 
+          console.log("Notification setup...");
+          var alarmMesg = "ALERT:";
+          var alarmData = new Object();
+          var sendAlarm = false;
+          
+          // To get same data but not affect the old data
+          Object.assign(alarmData, sensorData);
+          delete alarmData.latitude; delete alarmData.longitude; delete alarmData.windDirection;
+          //console.log("data:"+ JSON.stringify(alarmData)); 
+          // Check if the values exceed threshold then send notification  
+          if(pHValue<5.5 || pHValue>9.0){ // pH 
+              alarmMesg = alarmMesg.concat(" pH");
+              sendAlarm = true;
+          } 
+          else {
+              delete alarmData.pHValue;
+          }
+          if(ecValue>28){ // EC
+              alarmMesg = alarmMesg.concat(" EC");
+              sendAlarm = true;
+          }
+          else {
+              delete alarmData.ecValue;
+          } 
+          if(doValue<4){ // DO
+              alarmMesg = alarmMesg.concat(" DO");
+              sendAlarm = true;
+          }
+          else {
+              delete alarmData.doValue;
+          }
+          if(tempValue<15 || tempValue>26){ // Temperature
+              alarmMesg = alarmMesg.concat(" Temp");
+              sendAlarm = true;
+          }
+          else {
+              delete alarmData.tempValue;
+          }
+          if(turbidity>2500){ // Turbidity
+              alarmMesg = alarmMesg.concat(" Turb");
+              sendAlarm = true;
+          }
+          else {
+              delete alarmData.turbidity;
+          }
+          console.log("send alarm? "+sendAlarm);
+          if(sendAlarm){
+              console.log("~~ Allowed notification\n");
+              alarmData.date=alarmData.date.toISOString().replace(/T/, ' ').replace(/\..+/, '');
+              // Send FCM notification
+              var res = sendFcmMessage(config.topic, alarmMesg, JSON.stringify(alarmData));
+              // Send Stream notification feed
+              const ecosail = client.feed('notification', 'Ecosail');
               ecosail.addActivity({
                   actor: 'Ecosail',
                   verb: 'post',
-                  object: JSON.stringify(sensorData),
+                  object: JSON.stringify(alarmData),
+                  foreign_id: 'boatID:'+boatID,
               }).then((err)=>{
-                  console.log(err)
+                  console.log("~~ Stream feed notification:");
+                  console.log(err);
               });
-          } else if(str[6]>=30){
-              sendFcmMessage(config.topic, 'This location is infected(EC exceeded 30mg/L)', JSON.stringify(sensorData));
-              
-              sensorData.date=sensorData.date.toISOString().replace(/T/, ' ').replace(/\..+/, '');
-              const ecosail = client.feed('timeline', 'Ecosail');
-              ecosail.addActivity({
-                  actor: 'Ecosail',
-                  verb: 'post',
-                  object: JSON.stringify(sensorData),
-              }).then((err)=>{
-                  console.log(err)
-              });
-          } /*else if(str[5]>=??){
-              sendFcmMessage(config.topic, 'This location is infected(DO exceeded ??)', JSON.stringify(sensorData));
-          }*/
-          this.holdForNotification = 60; // 5 seconds per data income, 60 seconds per notification if triggered
-      } else {
-          this.holdForNotification = this.holdForNotification - 5 ;
+              console.log("~~ Sent notification:\n"+res);
+              this.holdForNotification = 60; // 10 seconds per data income, 60 seconds per notification if triggered
+          }      
+          
+      } else {    
+          this.holdForNotification = this.holdForNotification - 10 ; // minus 10 seconds means  1 min per notification
+          Number.isNaN(this.holdForNotification)?this.holdForNotification=0:"";
+          console.log("NaN? "+Number.isNaN(this.holdForNotification));
+          console.log("~~ Delayed for notification: "+this.holdForNotification);
       }
      
     });

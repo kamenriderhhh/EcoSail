@@ -144,7 +144,7 @@ async function subscribeAppInstanceToTopic(token, topic, res) {
 
 async function unsubscribeAppInstanceFromTopic(token, topic, res) {
     try {
-        if(await await messaging.unsubscribeFromTopic(token, topic)){
+        if(await messaging.unsubscribeFromTopic(token, topic)){
             res.status(200).send({
                 message: "Unsubscribe notification successfully"
             });
@@ -165,11 +165,20 @@ async function unsubscribeAppInstanceFromTopic(token, topic, res) {
 
 async function sendFcmMessage(topic, title, body) {
     const fcmMessage = buildPlatformMessage(topic, title, body);   
-    messaging.send(fcmMessage).then((response)=>{
+    
+    /*try {    
+        await messaging.send(fcmMessage);{
+            console.log("\nSuccessfully sent notification: ", response);
+        }
+    } catch(err) {
+        console.log('\nNotification Error: '+err);
+    }*/
+    await messaging.send(fcmMessage).then((response)=>{
         console.log("\nSuccessfully sent notification: ", response);
     }).catch((error)=>{
         console.log('\nNotification Error: '+error);
     });
+    
     /*getTokens().then((tokens)=>{
         const fcmMessage = buildPlatformMessage(topic, tokens, title, body);   
         messaging.sendMulticast(fcmMessage).then((response)=>{

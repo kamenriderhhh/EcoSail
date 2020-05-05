@@ -8,6 +8,7 @@ import pin2 from '../Image/pinpoint2.png';
 import pin3 from '../Image/pinpoint3.png'; 
 import './MapView.css';
 import CardForm from '../CardForm/CardForm';
+import InfoBoard from '../InfoBoard/InfoBoard';
 import { getDestination, getSensorData, sendLocation } from '../../API';
 
 var myIcon = L.icon({
@@ -43,8 +44,11 @@ class MapView extends Component {
           lat: 5.354482, 
           lng: 100.301226,
         },
+        windDir: NaN,
+        windSpd: NaN,
         haveUsersLocation: true,
         zoom: 18,
+        maxZoom: 25,
         userSetDest: {
           slat: '',
           slng: '',
@@ -63,7 +67,7 @@ class MapView extends Component {
     componentDidMount(){
         this.updateLocation();
         // Every 
-        this.timer = setInterval(() => this.updateLocation(), 5000);
+        this.timer = setInterval(() => this.updateLocation(), 10000);
     };
     
     // Before unmount the component, stop the timer and null it
@@ -74,14 +78,17 @@ class MapView extends Component {
     
     // Get user geolocation and reconfigurate some attributes
     updateLocation = () => {
-        getDestination()
+        const option = {
+            boatID: this.props.selectedBID
+        };
+        getDestination(option)
             .then(destinations => {
                 this.setState({
                     destinations,
                 });
             });
         // Get the boat information
-        getSensorData()
+        getSensorData(option)
             .then(curLocations => {        
                 this.setState({
                     curLocations,
@@ -115,13 +122,13 @@ class MapView extends Component {
     
     formSubmitted = (event) => {
         event.preventDefault();
-
+        
         //console.log(this.state.userSetDest);
         // Check the form data is it valid or not  
         if (this.formIsValid()){
             //if no error
             this.setState({
-                sendingLocation: true
+                sendingLocation: true  
             });
     
             const dest = {
@@ -129,7 +136,7 @@ class MapView extends Component {
                 latitude: this.state.userSetDest.slat,
                 longitude: this.state.userSetDest.slng
             };
-        
+            
             // Upload the new destination
             sendLocation(dest)
                 .then((result) => {
@@ -141,17 +148,17 @@ class MapView extends Component {
                     }, 4000);
                 }
             );
+
+            // After submited form reset the marker
+            this.setState({
+                markerData: [],
+            });
+
+            // Update the locations
+            this.updateLocation()
         }
-
-        // After submited form reset the marker
-        this.setState({
-            markerData: [],
-        });
-
-        // Update the locations
-        this.updateLocation()
     };
-    
+    /*
     valueChanged = (event) => {
         const { name, value } = event.target; 
         this.setState((prevState) => ({
@@ -161,6 +168,8 @@ class MapView extends Component {
             }
         }))
     };
+    */
+    
 
     toggleDraggable = () => {
         this.setState({ destDraggable: !this.state.destDraggable })
@@ -175,19 +184,40 @@ class MapView extends Component {
         //update the state
         this.setState(prevState => {
             const markerData = [...prevState.markerData];
+            
+            
             markerData[markerIndex] = latLng;
             return { markerData: markerData };
+        },()=>{
+            this.setState(prevState => {
+                var userSetDest = prevState.userSetDest;
+                userSetDest.slat=document.getElementById("slat").value;
+                userSetDest.slng=document.getElementById("slng").value;
+                return { userSetDest: userSetDest };
+            }, ()=>{
+                //console.log(this.state.userSetDest);
+            })
+            //console.log(this.state.userSetDest);
+            //console.log(document.getElementById("slat").value);
         });
     }
 
     addMarker = (event) => {
+        //console.log(this.state.userSetDest);
         if (Object.keys(this.state.markerData).length === 0){
             const {markerData} = this.state;
+            var {userSetDest} = this.state;
             const coords = event.latlng;
             coords.lat = coords.lat.toFixed(6);
             coords.lng = coords.lng.toFixed(6);
             markerData.push(coords);
-            this.setState({markerData});
+            userSetDest.slat=coords.lat;
+            userSetDest.slng=coords.lng;
+            this.setState({
+                markerData,
+                userSetDest
+            },()=>{//console.log(this.state.userSetDest)
+            });
         }
     }
 
@@ -195,11 +225,14 @@ class MapView extends Component {
         var pos = [this.state.location.lat, this.state.location.lng];
         var dest = [this.state.location.lat, this.state.location.lng];
         var marker = [];
+        var windData = [this.state.windDir, this.state.windSpd];
         if (Object.keys(this.state.curLocations).length !== 0){
             var temp = this.state.curLocations;
             //console.log("thit: "+this.state.curLocations);
             pos[0] = parseFloat(temp.latitude);
             pos[1] = parseFloat(temp.longitude);
+            windData[0] = parseFloat(temp.windDirection);;
+            //windData[1] = parseFloat(temp.windSpeed);;
         }
         if (Object.keys(this.state.destinations).length !== 0){
             //var temp = this.state.destinations[this.state.destinations.length-1];
@@ -215,8 +248,9 @@ class MapView extends Component {
 
         return (
             <div>
-                <Map className="map" center={pos} zoom={this.state.zoom} onClick={this.addMarker}>
+                <Map className="map" center={pos} maxZoom={20} zoom={this.state.zoom} onClick={this.addMarker}>
                     <TileLayer
+                    maxZoom={20}
                     attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
@@ -257,9 +291,13 @@ class MapView extends Component {
                     </Marker>
                     )} 
                 </Map>
-                {
+                <InfoBoard 
+                    boatLoc={pos}
+                    windData={windData}
+                />
+                { 
                   !this.state.showLocationForm ?
-                  <Button className="location-form" onClick={this.showLocationForm} color="info">Add a location</Button> :
+                  <Button className="location-form" onClick={this.showLocationForm} color="info">Insert Destination</Button> :
                   !this.state.sentLocation ?
                   <CardForm
                       cancelLocation={this.cancelLocation}
@@ -268,7 +306,6 @@ class MapView extends Component {
                       sentLocation={this.state.sentLocation}
                       haveUsersLocation={this.state.haveUsersLocation}
                       formSubmitted={this.formSubmitted}
-                      valueChanged={this.valueChanged}
                       formIsValid={this.formIsValid}
                       marker={this.state.markerData}
                   /> :

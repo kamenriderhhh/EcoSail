@@ -89,6 +89,10 @@
     margin-bottom: 10px;
 }
 
+.feedItem {
+    word-break: break-all;
+}
+
 /* Modile App View */
 @media (max-width: 768px) {
     .toolbar_navigation-items {

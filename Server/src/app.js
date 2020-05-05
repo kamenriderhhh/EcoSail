@@ -36,7 +36,6 @@ const options = {
 // MQTT Client Initialize the connection
 const mqttClient = new mqttHandler();
 mqttClient.connect();
-exports.mqttClient = mqttClient;
 //mqttClient.post();
 // End here
 
@@ -63,14 +62,43 @@ https.createServer(options, app).listen(config.port, ()=>{
   console.log("App listening at https://localhost:%s", config.port)
 });
 
+/*
+const sensorData = {
+        boatID:2,
+        latitude:2.222222,
+        longitude:3.333333,
+        tempValue:44.44,
+        pHValue:5.55,
+        doValue:6.66,
+        ecValue:77.77,
+        turbidity:8883.99,
+        date: new Date()
+      };
+*/
+/* //ok
+const {sendFcmMessage}= require('./api/notification/firebase');
+console.log(sendFcmMessage(config.topic, "This location is infected(pH out of safe range)", JSON.stringify(sensorData)));
+*/
 
-//const {sendFcmMessage}= require('./api/notification/firebase');
-//sendFcmMessage(config.topic, "Ecsail", "could it be5");
-//setTimeout(()=>{sendFcmMessage(config.topic, "Ecosail", "New");}, 3000);
 /*var date= new Date().toISOString().
   replace(/T/, ' ').      // replace T with a space
   replace(/\..+/, '')     // delete the dot and everything after
 ;*/
+/* //ok
+const { client } = require('./api/controller/controller');
+const ecosail = client.feed('notification', 'Ecosail');
+//ecosail.removeActivity("45de9309-5655-11ea-8080-8000265a1c61.post_2020-02-23");*/
+/*
+ecosail.addActivity({
+    actor: 'Ecosail',
+    verb: 'post',
+    object: JSON.stringify(sensorData),
+}).then((err)=>{
+    console.log("~~ Stream feed notification:");
+    console.log(err);
+});*/
+
+// Test bed:
 
 /*
 function initial(){

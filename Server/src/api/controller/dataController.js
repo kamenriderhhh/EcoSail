@@ -5,17 +5,25 @@ const db = require('../db');
 const Destination = db.get('destination');//db.get('destination');
 const SensorNodes = db.get('sensorNodes');//db.get('cursensorNodes');
 
-const mqttClient = require('../../app.js');
-
+//const mqttClient = require('../../app.js');
 // Schema
 const locSchema = require('../model/location');
 
+// Get the boat count
+exports.getBoatCount = (req, res) => {
+  SensorNodes.distinct('boatID').then( 
+    boatArray => { 
+      res.json(JSON.stringify(boatArray.length));
+    }
+  );
+}
+
 // Get the sensornodes data from the boat
 exports.getSensorNodes = (req, res) => {
-  SensorNodes.find()
-    .then(sensorData => {
+  SensorNodes.find({
+    boatID: JSON.stringify(req.body.boatID)
+    }).then(sensorData => {
         res.json(sensorData[sensorData.length-1]);
-        console.log()
     });
 }
 
@@ -23,8 +31,10 @@ exports.getSensorNodes = (req, res) => {
 exports.getSensorHistData = (req, res) => {
   const reqStartDate = new Date(req.body.startDate);
   const reqEndDate = new Date(req.body.endDate);
-  SensorNodes.find({date: {$gte: reqStartDate, $lte: reqEndDate} })
-    .then(sensorData => {
+  SensorNodes.find({
+    date: {$gte: reqStartDate, $lte: reqEndDate},
+    boatID: JSON.stringify(req.body.boatID)
+    }).then(sensorData => {
         res.json(sensorData); 
         //console.log(sensorData.length);
         //get min,max,avg value for each sensors
@@ -38,7 +48,9 @@ exports.getSensorHistData = (req, res) => {
 
 // Get the destination for the boat
 exports.getDestination = (req, res) => {
-    Destination.find()
+    Destination.find({
+      boatID: JSON.stringify(req.body.boatID)
+    })
       .then(dest => {
           res.json(dest[dest.length-1]);
       });
@@ -60,7 +72,7 @@ exports.postDestination = (req, res) => {
           .then(insertedMessage => {
             res.json(insertedMessage);
             // Update the destination file for linefollowing.txt in node
-            mqttClient.post();
+            //mqttClient.post();
           });
     } else {
         next(result.error);

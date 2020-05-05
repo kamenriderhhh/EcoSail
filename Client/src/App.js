@@ -29,6 +29,14 @@ class App extends Component {
       //console.log('token: '+this.state.token)
     });
   };
+
+  setBoatCount = (value) => {
+    this.setState({
+      boatCount: value
+    },()=>{
+	//console.log('boatcount:'+this.state.boatCount)
+    });
+  };
   
   // Sidedrawer function
   drawerToggleClickHandler = () => {
@@ -54,7 +62,7 @@ class App extends Component {
     this.setState({
       login: !this.state.login
     }, ()=>{
-      console.log(this.state.login);
+      //console.log(this.state.login);
     });
   }
 
@@ -75,12 +83,16 @@ class App extends Component {
           {
             this.state.login === false ?
             <div className="content">
-              <Route exact path="/" render={(props)=><Mainpage {...props} userLogin={this.userLogin} loginStatus={this.state.login}/>}/>
-              <Route path="/login" render={(props)=><Login {...props} userLogin={this.userLogin} loginStatus={this.state.login} setToken={this.setToken}/>}/>
+              <Route exact path="/" render={(props)=><Mainpage {...props}/>}/>
+              <Route path="/login" render={(props)=><Login {...props} userLogin={this.userLogin} loginStatus={this.state.login} 
+                setToken={this.setToken} setBoatCount={this.setBoatCount}
+              />}/>
             </div>
             :
             <div className="content">
-              <Route exact path="/" render={(props)=><MainView {...props} selectBoat={this.selectBoat} selectedBID={this.state.boatID}/>}/>
+              <Route exact path="/" render={(props)=><MainView {...props} selectBoat={this.selectBoat} 
+                selectedBID={this.state.boatID} boatCount={this.state.boatCount}
+                />}/>
               <Route path="/map" render={(props)=><MapView {...props} selectedBID={this.state.boatID}/>}/>
               <Route path="/camera" render={(props)=><CameraView {...props} selectedBID={this.state.boatID}/>}/>
               <Route path="/data" render={(props)=><DataView {...props} selectedBID={this.state.boatID}/>}/>

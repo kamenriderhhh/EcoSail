@@ -26,13 +26,16 @@
 }
 
 .darwer-img {
-    max-width: 100%;
-    max-height: 100%;
-    align-self: center;
+    max-width: 90%;
+}
+
+.try {
+    display: flex;
+    justify-content: center;
 }
 
 .side-drawer ul {
-    height: 60%;
+    height: auto;
     list-style: none;
     display: flex;
     flex-direction: column;
@@ -42,8 +45,9 @@
 
 .side-drawer li {
     height: 60%;
-    margin: 50px 5px 0px -35px;
-    text-align: center;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
     border-width:3px;  
     border-style:outset;
     background-color: rgb(171, 226, 230);

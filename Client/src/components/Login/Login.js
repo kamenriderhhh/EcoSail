@@ -7,6 +7,8 @@ import "./Login.css";
 
 // For notification
 import Notification from "../Notification/Notification";
+// get boat count
+import { getBoatCount } from '../../API';
 
 export default function Login(props) {
   const [email, setEmail] = useState("");
@@ -26,7 +28,7 @@ export default function Login(props) {
   }
 
   function simulateNetworkRequest() {
-    return new Promise(resolve => setTimeout(resolve, 2000));
+    return new Promise(resolve => setTimeout(resolve, 4000));
   }
 
   useEffect(() => {
@@ -40,12 +42,14 @@ export default function Login(props) {
         setLoadingSignup(false);
       });
     }
+    return (
+      clearTimeout()
+    )
   }, [isLoadingLogin, isLoadingSignup]);
 
   // Login function
-  const handleLoginClick = () => {
+  const handleLoginClick = async () => {
     setLoadingLogin(true);
-    console.log(typeof(process.env.REACT_APP_TR));
     const sgnin = {
       email: document.getElementById("email").value, 
       password: CryptoJS.AES.encrypt(document.getElementById("password").value, secret).toString()
@@ -53,23 +57,31 @@ export default function Login(props) {
     // Post the signin request
     sendSignin(sgnin).then((result) => {     
       if(result.message){
-        // Email not found!
+        // Email not found when there is error message return! 
         displayMessage(<span>Email not found</span>);
+        setTimeout(() => {setLoadingLogin(false);}, 4000);
+        setPassword("");
       }
       else if(result.accessToken == null){
         // Invalid password!
         displayMessage(<span>Invalid password</span>);
         //console.log("Invalid password!");
+        setTimeout(() => {setLoadingLogin(false);}, 4000);
+        setPassword("");
       }
       else{
         // Login successful
         displayMessage(<span>Successfully login</span>);
-        //console.log("Successfully login!");
+        //console.log("Access token: "+result.accessToken);
         props.setToken(result.accessToken);
-        props.userLogin();
+
+        getBoatCount().then((boatCount) => {console.log(typeof(parseInt(boatCount)));console.log(parseInt(boatCount));
+          props.setBoatCount(parseInt(boatCount));
+          // After got the boat count then forward user to dashboard
+          // sleep to complete the token set state
+          setTimeout(() => {props.userLogin()}, 4000);
+        });
       }
-      setTimeout(() => {setLoadingLogin(false);}, 4000);
-      setPassword("");
     });
   };
 
@@ -114,6 +126,7 @@ export default function Login(props) {
             type="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
+            disabled={isLoadingLogin || isLoadingSignup}
           />
         </FormGroup>
         <FormGroup controlId="password" bssize="large">
@@ -123,6 +136,7 @@ export default function Login(props) {
             value={password}
             onChange={e => setPassword(e.target.value)}
             type="password"
+            disabled={isLoadingLogin || isLoadingSignup}
           />
         </FormGroup>
         <Row>
@@ -142,7 +156,7 @@ export default function Login(props) {
       <Snackbar 
         anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
         open={snackbar}
-        autoHideDuration={2000}
+        autoHideDuration={3000}
         onClose={() => {setSnackbar(false); setSnackbarMessage("");}}
         message={snackbarMessage}
       />

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+﻿import React, { Component } from 'react';
 import { Card, CardTitle, CardText, CardColumns, 
     Form, FormGroup, Label, Input } from 'reactstrap';
 //import Switch from '../Switch/Switch.js';
@@ -23,7 +23,7 @@ class MainView extends Component {
     componentDidMount(){
         this.updateSensorData();
         // Every 
-        this.timer = setInterval(() => this.updateSensorData(), 5000);
+        this.timer = setInterval(() => this.updateSensorData(), 10000);
     };
 
     // Before unmount the component, stop the timer and null it
@@ -34,23 +34,27 @@ class MainView extends Component {
 
     // Get user geolocation and reconfigurate some attributes
     updateSensorData = () => {
+        const option = {
+            boatID: this.props.selectedBID
+        };
         // Get the sensor nodes information
-        getSensorData()
-            .then(sensorNodes => {        
-                this.setState({ 
-                    tempValue: sensorNodes.tempValue,
-                    pHValue: sensorNodes.pHValue,
-                    doValue: sensorNodes.doValue,
-                    ecValue: sensorNodes.ecValue,
-                    turbValue: sensorNodes.turbidity
-                });
-            }
-        );
+        getSensorData(option).then(sensorNodes => {     
+            this.setState({ 
+                tempValue: parseFloat(sensorNodes.tempValue),
+                pHValue: parseFloat(sensorNodes.pHValue),
+                doValue: parseFloat(sensorNodes.doValue),
+                ecValue: parseFloat(sensorNodes.ecValue),
+                turbValue: parseFloat(sensorNodes.turbidity),//Math.round(sensorNodes.turbValue).toFixed();
+            });
+        });
     }
     
     render() {
         const needleColor = '#FF6C40';
         const cardTitleStyle = {fontWeight:'bold', display: 'flex', justifyContent: 'center'};
+        const boatIDs = [];
+        const boatCount = this.props.boatCount;
+        for (var i=1;i<=boatCount;i++){ boatIDs.push(<option>{i}</option>) } 
         return (
             <div className="main">
                 <div className='main-item'>
@@ -59,9 +63,7 @@ class MainView extends Component {
                         <FormGroup>
                             <Label for="sailboatSelect">The current selected Sailboat ID: {this.props.selectedBID}</Label>
                             <Input type="select" name="select" id="sailboatSelect" onChange={this.props.selectBoat}>
-                                <option>1</option>
-                                <option>2</option>
-                                <option>3</option>
+                                {boatIDs}
                             </Input>
                         </FormGroup>
                     </Form>
@@ -113,7 +115,7 @@ class MainView extends Component {
                             <div className='gauge'>
                             <ReactSpeedometer 
                                 fluidWidth={true}
-                                maxValue={20}
+                                maxValue={25} //default max value for DO sensor 20
                                 minValue={0}
                                 value={this.state.doValue}
                                 needleColor={needleColor}

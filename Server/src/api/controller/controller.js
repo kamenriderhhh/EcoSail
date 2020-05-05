@@ -104,23 +104,6 @@ exports.signin = (req, res) => {
     
     //const userToken = client.createUserToken((user._id).toString()); // for notification feeds
     const userToken = client.createUserToken('Ecosail'); // for notification feeds
-    /*const sensorData = {
-        a:3.2,
-        b:5.1,
-        c:66.2,
-        d:88,
-        e:2636.1,
-        date: new Date()
-      };
-    
-    const ecosail = client.feed('timeline', 'Ecosail');
-    ecosail.addActivity({
-        actor: 'Ecosail',
-        verb: 'post',
-        object: sensorData, //'somethingGood',
-    }).then((err)=>{
-        console.log(err)
-    });*/
     
     res.status(200).send({ 
       auth: true, 
