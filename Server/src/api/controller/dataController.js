@@ -8,6 +8,18 @@ const SensorNodes = db.get('sensorNodes');//db.get('cursensorNodes');
 //const mqttClient = require('../../app.js');
 // Schema
 const locSchema = require('../model/location');
+var sensorActive = false;
+
+/*
+// Self revoking function to set boat inactive
+(function(){
+  setInterval(()=>{
+    if(sensorActive){
+      sensorActive=false;
+      console.log("Is sensor active: "+sensorActive);
+    }
+  }, 15000); 
+})()*/
 
 // Get the boat count
 exports.getBoatCount = (req, res) => {
@@ -23,7 +35,18 @@ exports.getSensorNodes = (req, res) => {
   SensorNodes.find({
     boatID: JSON.stringify(req.body.boatID)
     }).then(sensorData => {
-        res.json(sensorData[sensorData.length-1]);
+        var sensorArray = sensorData[sensorData.length-1];
+        // Check if the data has passed more than 20 second, if not the sensor is not active
+        var dataTime = new Date(JSON.parse(JSON.stringify(sensorArray.date))).getTime();
+        var todayTime = new Date().getTime();
+        if(((todayTime-dataTime)/1000) > 20) { 
+          sensorActive = false; 
+        } else {
+          sensorActive = true; 
+        }
+        sensorArray.sensorActive = sensorActive;
+        //console.log(sensorArray);
+        res.json(sensorArray);
     });
 }
 

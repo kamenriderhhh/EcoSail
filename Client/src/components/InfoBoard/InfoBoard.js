@@ -1,6 +1,5 @@
 import React from 'react';
-import { Card, Button, CardTitle, CardText, Form, 
-  FormGroup, Label, Input, Container, ListGroup, ListGroupItem, ListGroupItemHeading } from 'reactstrap';
+import { Container, ListGroup, ListGroupItem, ListGroupItemHeading } from 'reactstrap';
 
 import './InfoBoard.css';
 
@@ -9,7 +8,7 @@ const InfoBoard = (props) => {
     <Container className="infoboard">
     <ListGroup>
       <ListGroupItem className="boatInfo">
-        <ListGroupItemHeading>Boat's Location</ListGroupItemHeading>
+        <ListGroupItemHeading>Boat {props.selectedBID} Location</ListGroupItemHeading>
         Lat:{props.boatLoc[0]}
             <br/>
         Lng:{props.boatLoc[1]}

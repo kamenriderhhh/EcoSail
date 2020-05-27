@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import L from 'leaflet';
-import { Map, TileLayer, Marker, Popup } from 'react-leaflet';
+import { Map, TileLayer, Marker, Popup, Tooltip } from 'react-leaflet';
 import { Button } from 'reactstrap';
 import Joi from 'joi';
 import pin from '../Image/pinpoint.png'; 
@@ -132,7 +132,7 @@ class MapView extends Component {
             });
     
             const dest = {
-                boatID: this.props.selectedBID, 
+                boatID: JSON.stringify(this.props.selectedBID), 
                 latitude: this.state.userSetDest.slat,
                 longitude: this.state.userSetDest.slng
             };
@@ -184,8 +184,6 @@ class MapView extends Component {
         //update the state
         this.setState(prevState => {
             const markerData = [...prevState.markerData];
-            
-            
             markerData[markerIndex] = latLng;
             return { markerData: markerData };
         },()=>{
@@ -228,11 +226,13 @@ class MapView extends Component {
         var windData = [this.state.windDir, this.state.windSpd];
         if (Object.keys(this.state.curLocations).length !== 0){
             var temp = this.state.curLocations;
-            //console.log("thit: "+this.state.curLocations);
-            pos[0] = parseFloat(temp.latitude);
-            pos[1] = parseFloat(temp.longitude);
-            windData[0] = parseFloat(temp.windDirection);;
-            //windData[1] = parseFloat(temp.windSpeed);;
+            if(temp.sensorActive){
+                //console.log("thit: "+this.state.curLocations);
+                pos[0] = parseFloat(temp.latitude);
+                pos[1] = parseFloat(temp.longitude);
+                windData[0] = parseFloat(temp.windDirection);
+                //windData[1] = parseFloat(temp.windSpeed);
+            }
         }
         if (Object.keys(this.state.destinations).length !== 0){
             //var temp = this.state.destinations[this.state.destinations.length-1];
@@ -259,9 +259,9 @@ class MapView extends Component {
                     <Marker 
                         position={pos} 
                         icon={myIcon}>
-                        <Popup >
+                        <Tooltip >
                             lat:{pos[0]}, lng:{pos[1]}
-                        </Popup>
+                        </Tooltip>
                     </Marker> : ""
                     }
                     {
@@ -269,9 +269,9 @@ class MapView extends Component {
                     <Marker 
                         position={dest} 
                         icon={myIcon2}>
-                        <Popup>
+                        <Tooltip>
                             lat:{dest[0]}, lng:{dest[1]}
-                        </Popup>
+                        </Tooltip>
                     </Marker> : ""
                     } 
                     {this.state.markerData.map((element, index) =>
@@ -283,17 +283,18 @@ class MapView extends Component {
                         draggable={this.state.destDraggable}
                         onDragend={this.updateMarker}
                         >
-                        <Popup autoClose={false}>
+                        <Tooltip autoClose={false}>
                             <span onClick={this.toggleDraggable}>
                                 lat:{marker[0]}, lng:{marker[1]}
                             </span>
-                        </Popup>
+                        </Tooltip>
                     </Marker>
                     )} 
                 </Map>
                 <InfoBoard 
                     boatLoc={pos}
                     windData={windData}
+                    selectedBID={this.props.selectedBID}
                 />
                 { 
                   !this.state.showLocationForm ?

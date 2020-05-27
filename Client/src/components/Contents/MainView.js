@@ -11,11 +11,11 @@ class MainView extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            tempValue: NaN,
-            pHValue: NaN,
-            doValue: NaN,
-            ecValue: NaN,
-            turbValue: NaN,
+            tempValue: 0,
+            pHValue: 0,
+            doValue: 0,
+            ecValue: 0,
+            turbValue: 0,
         };
     }
 
@@ -38,15 +38,37 @@ class MainView extends Component {
             boatID: this.props.selectedBID
         };
         // Get the sensor nodes information
-        getSensorData(option).then(sensorNodes => {     
-            this.setState({ 
-                tempValue: parseFloat(sensorNodes.tempValue),
-                pHValue: parseFloat(sensorNodes.pHValue),
-                doValue: parseFloat(sensorNodes.doValue),
-                ecValue: parseFloat(sensorNodes.ecValue),
-                turbValue: parseFloat(sensorNodes.turbidity),//Math.round(sensorNodes.turbValue).toFixed();
-            });
+        getSensorData(option).then(sensorNodes => {
+            if(sensorNodes.sensorActive){
+                let temp = parseFloat(sensorNodes.tempValue);
+                let pH = parseFloat(sensorNodes.pHValue);
+                let dO = parseFloat(sensorNodes.doValue);
+                let ec = parseFloat(sensorNodes.ecValue);
+                let turb = parseFloat(sensorNodes.turbidity);
+                this.setState({ 
+                    tempValue: temp,
+                    pHValue: pH,
+                    doValue: dO,
+                    ecValue: ec >= 80 ? 0 : ec,
+                    turbValue: turb === 3000 ? 0 : turb,
+                });
+            } else {
+                this.setState({ 
+                    tempValue: 0,
+                    pHValue: 0,
+                    doValue: 0,
+                    ecValue: 0,
+                    turbValue: 0,
+                }); 
+            }   
         });
+        /**
+         * 31,9.8,1.1,9.0,2360
+         * 0,10.5,16,85,3000
+         * temp 0 will be not active/failure
+         * turb 3000 will be not active/failure
+         * ec 80 will be not active/failure
+         */
     }
     
     render() {
@@ -85,7 +107,11 @@ class MainView extends Component {
                                 currentValueText="Current Value: ${value} &#8451;"
                             />
                             </div><br/> 
-                            <CardText style={{display: 'flex',justifyContent: 'center'}}>{
+                            <CardText style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                backgroundColor : this.state.tempValue ? 'lime' :'orange'
+                                }}>{
                                 this.state.tempValue ? 'Active' : 'Not Active'
                             }</CardText>
                         </Card>
@@ -105,7 +131,11 @@ class MainView extends Component {
                                 currentValueText="Current Value: ${value}"
                             />
                             </div><br/>
-                            <CardText style={{display: 'flex',justifyContent: 'center'}}>{
+                            <CardText style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                backgroundColor : this.state.pHValue ? 'lime' :'orange'
+                                }}>{
                                 this.state.pHValue ? 'Active' : 'Not Active'
                             }</CardText>
                         </Card>
@@ -125,7 +155,11 @@ class MainView extends Component {
                                 currentValueText="Current Value: ${value} mg/L"
                             />
                             </div><br/> 
-                            <CardText style={{display: 'flex',justifyContent: 'center'}}>{
+                            <CardText style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                backgroundColor : this.state.doValue ? 'lime' :'orange'
+                                }}>{
                                 this.state.doValue ? 'Active' : 'Not Active'
                             }</CardText>
                         </Card>
@@ -145,7 +179,11 @@ class MainView extends Component {
                                 currentValueText="Current Value: ${value} mS/cm"
                             />
                             </div><br/>   
-                            <CardText style={{display: 'flex',justifyContent: 'center'}}>{
+                            <CardText style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                backgroundColor : this.state.ecValue ? 'lime' :'orange'
+                                }}>{
                                 this.state.ecValue ? 'Active' : 'Not Active'
                             }</CardText>
                         </Card>
@@ -165,7 +203,11 @@ class MainView extends Component {
                                 currentValueText="Current Value: ${value} NTU"
                             />
                             </div><br/>
-                            <CardText style={{display: 'flex',justifyContent: 'center'}}>{
+                            <CardText style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                backgroundColor : this.state.turbValue ? 'lime' :'orange'
+                                }}>{
                                 this.state.turbValue ? 'Active' : 'Not Active'
                             }</CardText>
                         </Card>

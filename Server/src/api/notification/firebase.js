@@ -30,7 +30,7 @@ function buildPlatformMessage(topic, title, body) {
     const fcmMessage = buildCommonMessage(title, body);
     
     // Send notification via Token
-    
+    //const tokens = getTokens();
     const webpush = {
         'headers': {
             'TTL': '0'
@@ -42,15 +42,15 @@ function buildPlatformMessage(topic, title, body) {
         'fcm_options': {
             'link': 'https://burghquayregistrationoffice.inis.gov.ie/Website/AMSREG/AMSRegWeb.nsf/AppSelect?OpenForm'
         }*/
-    };/*
-    const android = {
-        //'ttl': '86400s', //default 4 weeks, set to 0 if want immediately
-        'notification': {
+    };
+    //const android = {
+        //'ttl': '86400s' //default 4 weeks, set to 0 if want immediately
+        /*'notification': {
             'icon': config.logo,
-        },
-    };*/
+        },*/
+    //};
 
-    fcmMessage['topic'] = topic;
+    fcmMessage['topic'] = topic; 
     //fcmMessage['tokens'] = tokens;
     fcmMessage['webpush'] = webpush;
     //fcmMessage['android'] = android;
@@ -65,6 +65,8 @@ async function getTokens(){
         docs.forEach(function(doc) {
           tokens.push(doc.token);
         });
+        console.log("tokens:");
+        console.log(tokens);
         return tokens;
         //console.log("num of docs:"+docs.length);
         //console.log("last doc:\n"+docs[docs.length-1]); can use for historical data
@@ -91,7 +93,7 @@ async function storeAppInstanceToken(reqToken, res) {
             });
             text = "Subscription saved: "+subscription;
         }
-        console.log("\nStore token: "+text);
+        //console.log("\nStore token: "+text);
     });
 }
 
@@ -117,7 +119,7 @@ async function deleteAppInstanceToken(reqToken, res) {
             });
             text = "Subscription deleted"+subscription;
         }
-        console.log("Delete token: "+text);
+        //console.log("Delete token: "+text);
     });
 }
 

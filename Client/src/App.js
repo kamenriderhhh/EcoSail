@@ -14,14 +14,14 @@ import Mainpage from "./components/Mainpage/Mainpage";
 class App extends Component {
 
   state = {
-    //sideDrawer 
     sideDrawerOpen: false,
     boatID: 1,
+    boatCount: 1,
     login: false, //default fault
     token: null, //notification feed
     //need to gather the list of boatID from database
   }
-  
+
   setToken = (value) => {
     this.setState({
       token: value
@@ -34,7 +34,7 @@ class App extends Component {
     this.setState({
       boatCount: value
     },()=>{
-	//console.log('boatcount:'+this.state.boatCount)
+      //console.log('boatcount:'+this.state.boatCount)
     });
   };
   

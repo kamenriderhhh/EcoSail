@@ -41,7 +41,7 @@ router.post('/notification/subscribe', async(req, res) => {
     if (!req.body) res.sendStatus(400);
     if(req.body.token) {
         result = await subscribeAppInstanceToTopic(req.body.token, req.body.topic, res);
-        console.log('\nSubscribing: '+result);
+        //console.log('\nSubscribing: '+result);
     } else {
         res.status(400).send({
             message: "The request token not define!"
@@ -53,7 +53,7 @@ router.post('/notification/unsubscribe', async(req, res) => {
     if (!req.body) res.sendStatus(400);
     if(req.body.token) {
         result = await unsubscribeAppInstanceFromTopic(req.body.token, req.body.topic, res);
-        console.log('\nUnscuscribing: '+result);
+        //console.log('\nUnscuscribing: '+result);
     } else {
         res.status(400).send({
             message: "The request token not define!"

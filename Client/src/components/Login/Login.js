@@ -75,7 +75,7 @@ export default function Login(props) {
         //console.log("Access token: "+result.accessToken);
         props.setToken(result.accessToken);
 
-        getBoatCount().then((boatCount) => {console.log(typeof(parseInt(boatCount)));console.log(parseInt(boatCount));
+        getBoatCount().then((boatCount) => {
           props.setBoatCount(parseInt(boatCount));
           // After got the boat count then forward user to dashboard
           // sleep to complete the token set state

@@ -92,8 +92,8 @@ class toolbar extends Component {
                                 Boat
                             </NavLink></li>
                             <li><NavLink to="/data">
-                                <img className="toolbar-icon" src={imgData} alt="Water"/>
-                                Water
+                                <img className="toolbar-icon" src={imgData} alt="Analysis"/>
+                                Analysis
                             </NavLink></li>
                             <li onClick={this.props.login}><NavLink to="/">
                                 <img className="toolbar-icon" src={imgLogout} alt="Logout"/>

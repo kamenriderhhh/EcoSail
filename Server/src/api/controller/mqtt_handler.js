@@ -39,16 +39,18 @@ class MqttHandler {
       var str = message.toString();
       str = str.substring(0, str.length).split('#');
       const boatID = str[0];
-      const latitude = str[1];
-      const longitude = str[2];
-      const windDirection = str[3];
-      const tempValue = str[4];
-      const pHValue = str[5];
-      const doValue = str[6];
-      const ecValue = str[7];
-      const turbidity = str[8];
+      const tripID = str[1];
+      const latitude = str[2];
+      const longitude = str[3];
+      const windDirection = str[4];
+      const tempValue = str[5];
+      const pHValue = str[6];
+      const doValue = str[7];
+      const ecValue = str[8];
+      const turbidity = str[9];
       const sensorData = {
         boatID,
+        tripID,
         latitude,
         longitude,
         windDirection,
@@ -74,7 +76,7 @@ class MqttHandler {
           delete alarmData.latitude; delete alarmData.longitude; delete alarmData.windDirection;
           //console.log("data:"+ JSON.stringify(alarmData)); 
           // Check if the values exceed threshold then send notification  
-          if(pHValue<5.5 || pHValue>9.0){ // pH 
+          if(pHValue<3.5 || pHValue>9.0){ // pH  5.5-9.0
               alarmMesg = alarmMesg.concat(" pH");
               sendAlarm = true;
           } 
@@ -95,14 +97,14 @@ class MqttHandler {
           else {
               delete alarmData.doValue;
           }
-          if(tempValue<15 || tempValue>26){ // Temperature
+          if(tempValue<15 || tempValue>30){ // Temperature 15 - 26
               alarmMesg = alarmMesg.concat(" Temp");
               sendAlarm = true;
           }
           else {
               delete alarmData.tempValue;
           }
-          if(turbidity>2500){ // Turbidity
+          if(turbidity>2800){ // Turbidity
               alarmMesg = alarmMesg.concat(" Turb");
               sendAlarm = true;
           }

@@ -38,8 +38,8 @@ const sideDrawer = props => {
                 </NavLink></ListItem>
                 
                 <ListItem><NavLink to="/data">
-                    <img className="sideDrawer-icon" src={imgData} alt="Water"/>
-                    Water
+                    <img className="sideDrawer-icon" src={imgData} alt="Analysis"/>
+                    Analysis
                 </NavLink></ListItem>
                 <ListItem onClick={props.login}><NavLink to="/">
                     <img className="toolbar-icon" src={imgLogout} alt="Logout"/>
