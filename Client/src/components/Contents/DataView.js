@@ -409,6 +409,9 @@ class DataView extends Component {
     componentDidMount(){
         this.updateDateList();
         this.setAndGetHistData();
+        // refer to https://stackoverflow.com/questions/48805053/hide-native-keyboard-on-mobile-when-using-react-date-picker
+        const datePickers = document.getElementsByClassName("react-datepicker__input-container");
+        Array.from(datePickers).forEach((el => el.childNodes[0].setAttribute("readOnly", true)))
     }
 
     render() {
@@ -567,6 +570,7 @@ class DataView extends Component {
                                     selected={startDate}
                                     disabled={filterBased !== "Days" ? true : false}
                                     onChange={this.handleChange}
+                                    inputProps={{readOnly: true}}
                                 />
                             </Col>
                         </Row>
