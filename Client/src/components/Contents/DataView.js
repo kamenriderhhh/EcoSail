@@ -30,8 +30,8 @@ class DataView extends Component {
                 lng: 100.301226,
             },
             sensDataList: [],
-            selectedTripID: "",
-            tripIDList: [],
+            selectedTripID: "", tripIDList: [],
+            presentation: "Graph", 
         };
     }
 
@@ -176,7 +176,7 @@ class DataView extends Component {
             dataTime: dataTime,
             sensDataList: sensDataList,
         }, ()=>{
-            this.setSelectedTripID();
+            if(this.state.presentation === "AnalyticsMap"){ this.setSelectedTripID() }
             //console.log(this.state.conducValue);
             //console.log(this.state.sensDataList);
             // Something to do after the data changed
@@ -241,6 +241,13 @@ class DataView extends Component {
         });
     };
     
+    setPresentation = (event) => { 
+        this.setState({
+          presentation: document.getElementById("presentationSelect").value
+        },()=>{
+          //console.log('Presentation: '+this.state.presentation)
+        });
+    };
     /**
      * Calculate the center/average of multiple GeoLocation coordinates
      * Expects an array of objects with .latitude and .longitude properties
@@ -281,23 +288,13 @@ class DataView extends Component {
         };
     }      
 
-    componentDidMount(){
-        this.updateDateList();
-        this.setAndGetHistData();
-    }
-
-    render() {
-        const startDate = this.state.startDate;
-        const dateList = this.state.dateList;
-        const filterBased = this.state.filterBased;
-        const filterDays = this.state.filterDays;
-        const sensDataList = this.state.sensDataList; 
-        var pos = [this.state.location.lat, this.state.location.lng];   
+    analyticsMap = () => {
+        var sensDataList = this.state.sensDataList;
         var i,j; var circles=[], line=[]; 
         var circleColor; var tripIDList=[]; var firstOpt; 
         var infectedArray=[]; var infectedAvgGeoLoc; var infectedCircle=[]; 
         var tipTemp, tipPH, tipDO, tipEC, tipTurb;
-        // To circle up the destination of the collected historical data
+        var pos = [this.state.location.lat, this.state.location.lng];   
         for(i=0;i<1;i++){
             if(Array.isArray(sensDataList[i]) && sensDataList[i].length){ 
                 for(j=0;j<sensDataList[i].length;j++){
@@ -406,6 +403,136 @@ class DataView extends Component {
                 for(i=0;i<tripIDList.length;i++){ tripIDList[i] = <option>{tripIDList[i]}</option> }
             }
         }
+        return([tripIDList,circles,infectedCircle,line,firstOpt])
+    }
+
+    componentDidMount(){
+        this.updateDateList();
+        this.setAndGetHistData();
+    }
+
+    render() {
+        const startDate = this.state.startDate;
+        const dateList = this.state.dateList;
+        const filterBased = this.state.filterBased;
+        const filterDays = this.state.filterDays;
+        const sensDataList = this.state.sensDataList; 
+        var pos = [this.state.location.lat, this.state.location.lng];   
+        var i,j; var circles=[], line=[]; 
+        var circleColor; var tripIDList=[]; var firstOpt; 
+        var infectedArray=[]; var infectedAvgGeoLoc; var infectedCircle=[]; 
+        var tipTemp, tipPH, tipDO, tipEC, tipTurb;
+
+        if(this.state.presentation === "AnalyticsMap"){
+            for(i=0;i<1;i++){
+                if(Array.isArray(sensDataList[i]) && sensDataList[i].length){ 
+                    for(j=0;j<sensDataList[i].length;j++){
+                        // collect unique trip id
+                        if (tripIDList.indexOf(sensDataList[i][j].tripID) === -1){
+                            tripIDList.push(sensDataList[i][j].tripID);
+                        }
+                        if(this.state.selectedTripID ? this.state.selectedTripID === sensDataList[i][j].tripID 
+                            : tripIDList[0] === sensDataList[i][j].tripID){
+                            // CircleMarker color
+                            if(circles.length === 0){
+                                circleColor = "red"; firstOpt = sensDataList[i][j].tripID;
+                            } else if (j === sensDataList[i].length-1){
+                                circleColor = "blue"; 
+                            } else if (this.state.selectedTripID ? this.state.selectedTripID !== sensDataList[i][j+1].tripID 
+                                : tripIDList[0] !== sensDataList[i][j].tripID){
+                                circleColor = "blue";  
+                            } else {
+                                circleColor = "lime"
+                            }
+                            // Analytics part
+                            if(sensDataList[i][j].pHValue<3.5 || sensDataList[i][j].pHValue>9.0){ // pH 
+                                tipPH = <span style={{color:"red", fontWeight: "bold"}}>
+                                    pH: {JSON.stringify(sensDataList[i][j].pHValue)}</span>;
+                                circleColor = "violet";
+                            } 
+                            else {
+                                tipPH = <span>pH: {JSON.stringify(sensDataList[i][j].pHValue)}</span>
+                            }
+                            if(sensDataList[i][j].ecValue>28){ // EC
+                                tipEC = <span style={{color:"red", fontWeight: "bold"}}>
+                                    EC: {JSON.stringify(sensDataList[i][j].ecValue)}</span>;
+                                circleColor = "violet";
+                            }
+                            else {
+                                tipEC = <span>EC: {JSON.stringify(sensDataList[i][j].ecValue)}</span>
+                            } 
+                            if(sensDataList[i][j].doValue<4){ // DO
+                                tipDO = <span style={{color:"red", fontWeight: "bold"}}>
+                                    DO: {JSON.stringify(sensDataList[i][j].doValue)}</span>;
+                                circleColor = "violet";
+                            }
+                            else {
+                                tipDO = <span>DO: {JSON.stringify(sensDataList[i][j].doValue)}</span>
+                            }
+                            if(sensDataList[i][j].tempValue<15 || sensDataList[i][j].tempValue>30){ // Temperature
+                                tipTemp = <span style={{color:"red", fontWeight: "bold"}}>
+                                    Temperature: {JSON.stringify(sensDataList[i][j].tempValue)}</span>;
+                                circleColor = "violet";
+                            }
+                            else {
+                                tipTemp = <span>Temperature: {JSON.stringify(sensDataList[i][j].tempValue)}</span>
+                            }
+                            if(sensDataList[i][j].turbidity>2800){ // Turbidity
+                                tipTurb = <span style={{color:"red", fontWeight: "bold"}}>
+                                    Turbidity: {JSON.stringify(sensDataList[i][j].turbidity)}</span>;
+                                circleColor = "violet";
+                            }
+                            else {
+                                tipTurb = <span>Turbidity: {JSON.stringify(sensDataList[i][j].turbidity)}</span>
+                            }
+                            // Push to the infectedArea if the circle is violet/infected
+                            if(circleColor === "violet"){
+                                infectedArray.push({
+                                    latitude: parseFloat(sensDataList[i][j].latitude),
+                                    longitude: parseFloat(sensDataList[i][j].longitude)
+                                }); 
+                            }
+    
+                            // Create path and circlemarker
+                            circles.push(
+                                <div>
+                                    <CircleMarker center={ [sensDataList[i][j].latitude, sensDataList[i][j].longitude] } 
+                                    color={circleColor} radius={5}>
+                                        <Tooltip>
+                                            BoatID: {JSON.stringify(sensDataList[i][j].boatID)}<br/>
+                                            TripID: {JSON.stringify(sensDataList[i][j].tripID)}<br/>
+                                            Latitude: {JSON.stringify(sensDataList[i][j].latitude)}<br/>
+                                            Longitude: {JSON.stringify(sensDataList[i][j].longitude)}<br/>
+                                            {tipTemp}<br/>
+                                            {tipPH}<br/>
+                                            {tipDO}<br/>
+                                            {tipEC}<br/>
+                                            {tipTurb}<br/>
+                                            Date: {JSON.stringify(sensDataList[i][j].date)}
+                                        </Tooltip>
+                                    </CircleMarker>
+                                </div>
+                            )
+                            pos = [sensDataList[i][j].latitude, sensDataList[i][j].longitude];
+                            line.push([sensDataList[i][j].latitude, sensDataList[i][j].longitude]);
+                            if(j===sensDataList[i].length-1){
+                                infectedAvgGeoLoc = this.averageGeolocation(infectedArray);
+                                if(!isNaN(infectedAvgGeoLoc.latitude)){
+                                    infectedCircle.push(
+                                    <div>
+                                        <Circle center={ [infectedAvgGeoLoc.latitude, infectedAvgGeoLoc.longitude] } 
+                                        color={"purple"} radius={30}>
+                                        </Circle>
+                                    </div>
+                                    )
+                                }                            
+                            }
+                        }
+                    }
+                    for(i=0;i<tripIDList.length;i++){ tripIDList[i] = <option>{tripIDList[i]}</option> }
+                }
+            }
+        }
         return (
             <div className="dataView">
                 <h3 style={{textDecoration: 'underline'}}>Historical Data</h3>
@@ -445,58 +572,66 @@ class DataView extends Component {
                         </Row>
                     </FormGroup>
                 </Form>
-                    {
-                        this.state.filterBased === "Days" ? 
-                        <CardColumns>
-                            <BarChart name={"Temperature/Day"} data={this.state.tempValuePerDay} date={this.state.dataTime} filterDays={filterDays} type={1}/> 
-                            <LineChart name={"Temperature"} data={this.state.tempValue} date={dateList} filterDays={filterDays} type={2}/>
-                            <BarChart name={"pH/Day"} data={this.state.pHValuePerDay} date={this.state.dataTime} filterDays={filterDays} type={1}/>
-                            <LineChart name={"pH"} data={this.state.pHValue} date={dateList} filterDays={filterDays} type={2}/>
-                            <BarChart name={"Dissolved Oxygen/Day"} data={this.state.dOValuePerDay} date={this.state.dataTime} filterDays={filterDays} type={1}/>
-                            <LineChart name={"Dissolved Oxygen"} data={this.state.dOValue} date={dateList} filterDays={filterDays} type={2}/>
-                            <BarChart name={"Electrical Conductivity/Day"} data={this.state.conducValuePerDay} date={this.state.dataTime} filterDays={filterDays} type={1}/>
-                            <LineChart name={"Electrical Conductivity/Salinity"} data={this.state.conducValue} date={dateList} filterDays={filterDays} type={2}/>
-                            <BarChart name={"Turbidity/Day"} data={this.state.turbValuePerDay} date={this.state.dataTime} filterDays={filterDays} type={1}/>
-                            <LineChart name={"Turbidity"} data={this.state.turbValue} date={dateList} filterDays={filterDays} type={2}/>
-                        </CardColumns>
-                        : 
-                        <CardColumns>
-                            <LineChart name={"Temperature"} data={this.state.tempValue}/>
-                            <LineChart name={"pH"} data={this.state.pHValue}/>
-                            <LineChart name={"Dissolve Oxygen"} data={this.state.dOValue}/>
-                            <LineChart name={"Electrical Conductivity/Salinity"} data={this.state.conducValue}/>
-                            <LineChart name={"Turbidity"} data={this.state.turbValue}/> 
-                        </CardColumns>
-                        
-                }
-                <Card>
-                    <Label>
-                        <span style={{fontWeight: "bold"}}>NOTE: </span>
-                        The <span style={{color:"violet", fontWeight: "bold"}}>violet circle</span> in map
-                        and <span style={{color:"red", fontWeight: "bold"}}>red font </span> 
-                        inside the tooltip indicate that sensor value has <span style={{fontWeight: "bold"}}>exceeded</span> threshold or safe value range.
-                    </Label>
-                    <Label>
-                        <span style={{color:"red", fontWeight: "bold"}}>Red circle</span> : Starting location ||
-                        <span style={{color:"blue", fontWeight: "bold"}}> Blue circle </span> : Last location ||
-                        <span style={{color:"lime", fontWeight: "bold"}}> Lime/Green circle </span> : traversed locations 
-                    </Label>
-                    <Label for="tripSelect">Boat {this.props.selectedBID}, current selected trip ID: {this.state.selectedTripID?this.state.selectedTripID:firstOpt}</Label>
-                </Card>
-                <br/>
-                <Input type="select" name="select" id="tripIDSelect" onChange={this.setSelectedTripID}>
-                    {tripIDList}
+                <Input type="select" name="select" id="presentationSelect" onChange={this.setPresentation}>
+                    <option>Graph</option>
+                    <option>AnalyticsMap</option>
                 </Input>
-                <Map className="map" center={pos} maxZoom={20} zoom={18}>
-                    <TileLayer
-                    maxZoom={20}
-                    attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
-                    {infectedCircle}
-                    {circles}
-                    <Polyline positions={line} color="black"/>
-                </Map>  
+                <br/>
+                { 
+                    this.state.presentation === "Graph" ? 
+                        this.state.filterBased === "Days" ? 
+                            <CardColumns>
+                                <BarChart name={"Temperature/Day"} data={this.state.tempValuePerDay} date={this.state.dataTime} filterDays={filterDays} type={1}/> 
+                                <LineChart name={"Temperature"} data={this.state.tempValue} date={dateList} filterDays={filterDays} type={2}/>
+                                <BarChart name={"pH/Day"} data={this.state.pHValuePerDay} date={this.state.dataTime} filterDays={filterDays} type={1}/>
+                                <LineChart name={"pH"} data={this.state.pHValue} date={dateList} filterDays={filterDays} type={2}/>
+                                <BarChart name={"Dissolved Oxygen/Day"} data={this.state.dOValuePerDay} date={this.state.dataTime} filterDays={filterDays} type={1}/>
+                                <LineChart name={"Dissolved Oxygen"} data={this.state.dOValue} date={dateList} filterDays={filterDays} type={2}/>
+                                <BarChart name={"Electrical Conductivity/Day"} data={this.state.conducValuePerDay} date={this.state.dataTime} filterDays={filterDays} type={1}/>
+                                <LineChart name={"Electrical Conductivity/Salinity"} data={this.state.conducValue} date={dateList} filterDays={filterDays} type={2}/>
+                                <BarChart name={"Turbidity/Day"} data={this.state.turbValuePerDay} date={this.state.dataTime} filterDays={filterDays} type={1}/>
+                                <LineChart name={"Turbidity"} data={this.state.turbValue} date={dateList} filterDays={filterDays} type={2}/>
+                            </CardColumns>
+                            : 
+                            <CardColumns>
+                                <LineChart name={"Temperature"} data={this.state.tempValue}/>
+                                <LineChart name={"pH"} data={this.state.pHValue}/>
+                                <LineChart name={"Dissolve Oxygen"} data={this.state.dOValue}/>
+                                <LineChart name={"Electrical Conductivity/Salinity"} data={this.state.conducValue}/>
+                                <LineChart name={"Turbidity"} data={this.state.turbValue}/> 
+                            </CardColumns>    
+                    :
+                    <div>
+                        <Card>
+                            <Label>
+                                <span style={{fontWeight: "bold"}}>NOTE: </span>
+                                The <span style={{color:"violet", fontWeight: "bold"}}>violet circle</span> in map
+                                and <span style={{color:"red", fontWeight: "bold"}}>red font </span> 
+                                inside the tooltip indicate that sensor value has <span style={{fontWeight: "bold"}}>exceeded</span> threshold or safe value range.
+                            </Label>
+                            <Label>
+                                <span style={{color:"red", fontWeight: "bold"}}>Red circle</span> : Starting location ||
+                                <span style={{color:"blue", fontWeight: "bold"}}> Blue circle </span> : Last location ||
+                                <span style={{color:"lime", fontWeight: "bold"}}> Lime/Green circle </span> : traversed locations 
+                            </Label>
+                            <Label for="tripSelect">Boat {this.props.selectedBID}, current selected trip ID: {this.state.selectedTripID?this.state.selectedTripID:firstOpt}</Label>
+                        </Card>
+                        <br/>
+                        <Input type="select" name="select" id="tripIDSelect" onChange={this.setSelectedTripID}>
+                            {tripIDList}
+                        </Input>
+                        <Map className="map" center={pos} maxZoom={20} zoom={18}>
+                            <TileLayer
+                            maxZoom={20}
+                            attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            />
+                            {infectedCircle}
+                            {circles}
+                            <Polyline positions={line} color="black"/>
+                        </Map>
+                    </div>
+                }
             </div>
         );
     }

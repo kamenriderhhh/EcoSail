@@ -1,6 +1,5 @@
 import firebase from 'firebase/app';
 import '@firebase/messaging';
-import Logo from '../Image/logo.png';
 
 const config = {
     apiKey: "AIzaSyDNz5eT9ET9MniwLiy1jMcipn-u5p6e1lo",
@@ -36,7 +35,7 @@ if ('serviceWorker' in navigator) {
             const title = payload.notification.title;
             const options = {
                 body: payload.notification.body,
-                icon: Logo,
+                //icon: payload.notification.icon,
                 /*actions: [
                     {
                         action: payload.fcmOptions.link,
@@ -48,7 +47,7 @@ if ('serviceWorker' in navigator) {
             registration.showNotification(title, options);           
         });
     });
-
+    /*
     window.addEventListener('activate', function(e) {
         window.registration.unregister()
         .then(function() {
@@ -61,7 +60,7 @@ if ('serviceWorker' in navigator) {
                 })
         });
     });
-
+    */
     /*navigator.serviceWorker.getRegistrations()
     .then(function(registrations) {
         for(let registration of registrations) {
