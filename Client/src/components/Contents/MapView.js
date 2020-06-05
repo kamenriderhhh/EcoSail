@@ -180,7 +180,7 @@ class MapView extends Component {
         const markerIndex = event.target.options.marker_index; //get marker index
         latLng.lat = latLng.lat.toFixed(6);
         latLng.lng = latLng.lng.toFixed(6);
-        //console.log(this.props.selectedBID);
+        //console.log(latLng);
         //update the state
         this.setState(prevState => {
             const markerData = [...prevState.markerData];
@@ -189,8 +189,9 @@ class MapView extends Component {
         },()=>{
             this.setState(prevState => {
                 var userSetDest = prevState.userSetDest;
-                userSetDest.slat=document.getElementById("slat").value;
-                userSetDest.slng=document.getElementById("slng").value;
+                userSetDest.slat=latLng.lat;
+                userSetDest.slng=latLng.lng;
+                console.log(userSetDest);
                 return { userSetDest: userSetDest };
             }, ()=>{
                 //console.log(this.state.userSetDest);
@@ -294,6 +295,7 @@ class MapView extends Component {
                 <InfoBoard 
                     boatLoc={pos}
                     windData={windData}
+                    dest={dest}
                     selectedBID={this.props.selectedBID}
                 />
                 { 

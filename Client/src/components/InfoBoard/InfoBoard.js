@@ -8,13 +8,22 @@ const InfoBoard = (props) => {
     <Container className="infoboard">
     <ListGroup>
       <ListGroupItem className="boatInfo">
-        <ListGroupItemHeading>Boat {props.selectedBID} Location</ListGroupItemHeading>
+        <h7>Boat {props.selectedBID} Current Coordinates</h7>
+        <br/>
         Lat:{props.boatLoc[0]}
-            <br/>
+        <br/>
         Lng:{props.boatLoc[1]}
       </ListGroupItem>
+      <ListGroupItem className="destInfo">
+        <h7>Destination Coordinates</h7>
+        <br/>
+        Lat:{props.dest[0]}
+        <br/>
+        Lng:{props.dest[1]}
+      </ListGroupItem>
       <ListGroupItem className="windInfo">
-      <ListGroupItemHeading>Wind Direction</ListGroupItemHeading>
+      <h7>Wind Direction</h7>
+      <br/>
         {props.windData[0]}&deg;
         { 
           (()=>{

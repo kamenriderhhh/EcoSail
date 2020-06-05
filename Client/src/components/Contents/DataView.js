@@ -19,7 +19,6 @@ class DataView extends Component {
             dOValue: [], dOValuePerDay: [],
             conducValue: [], conducValuePerDay: [],
             turbValue: [], turbValuePerDay: [],
-            filterBased: "Days", //NaN
             filterDays: 1,
             startDate: new Date(),
             dateList: [], // for average data date
@@ -180,20 +179,6 @@ class DataView extends Component {
             //console.log(this.state.conducValue);
             //console.log(this.state.sensDataList);
             // Something to do after the data changed
-        });
-    }
-
-    selectFilterBased = (event) => {
-        this.setState({
-            filterBased: document.getElementById("filterBased").value
-            // plot the data according to either months or days
-        }, ()=>{
-            if(this.state.filterBased === "Days"){
-                // Get 7 days data for render when Days mode selected 
-                this.setAndGetHistData();
-                this.updateDateList();
-            } 
-            // update based on months...........
         });
     }
     
@@ -417,7 +402,6 @@ class DataView extends Component {
     render() {
         const startDate = this.state.startDate;
         const dateList = this.state.dateList;
-        const filterBased = this.state.filterBased;
         const filterDays = this.state.filterDays;
         const sensDataList = this.state.sensDataList; 
         var pos = [this.state.location.lat, this.state.location.lng];   
@@ -539,20 +523,47 @@ class DataView extends Component {
         return (
             <div className="dataView">
                 <h3 style={{textDecoration: 'underline'}}>Historical Data</h3>
-                <Label for="sailboatSelect">The current selected Sailboat ID: {this.props.selectedBID}</Label>
                 <Form>
                     <FormGroup>
                         <Row>
                             <Col>
-                                <Label for="filterBased">Filter based on Months/Days:</Label>
-                                <Input type="select" name="select" id="filterBased" onChange={this.selectFilterBased}>
-                                    <option>Days</option>
+                                <Label for="filterDate"> The current selected Sailboat ID: {this.props.selectedBID}, please select a date below to view data:  </Label>
+                                <DatePicker
+                                    id='datePicker' 
+                                    dateFormat="dd/MM/yyyy"
+                                    selected={startDate}
+                                    onChange={this.handleChange}
+                                    inputProps={{readOnly: true}}
+                                />
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col>
+                                <Label>Select to present the historical data in: </Label>
+                                <Input type="select" name="select" id="presentationSelect" onChange={this.setPresentation}>
+                                    <option>Graph</option>
+                                    <option>AnalyticsMap</option>
                                 </Input>
                             </Col>
+                        </Row>
+                    </FormGroup>
+                </Form>
+                <br/>
+                { 
+                    this.state.presentation === "Graph" ? 
+                    <div>
+                        <CardColumns>
+                            <BarChart name={"Temperature"} data={this.state.tempValuePerDay} date={this.state.dataTime} filterDays={filterDays} type={1}/> 
+                            <BarChart name={"pHy"} data={this.state.pHValuePerDay} date={this.state.dataTime} filterDays={filterDays} type={1}/>
+                            <BarChart name={"Dissolved Oxygen"} data={this.state.dOValuePerDay} date={this.state.dataTime} filterDays={filterDays} type={1}/>
+                            <BarChart name={"Electrical Conductivity"} data={this.state.conducValuePerDay} date={this.state.dataTime} filterDays={filterDays} type={1}/>
+                            <BarChart name={"Turbidity"} data={this.state.turbValuePerDay} date={this.state.dataTime} filterDays={filterDays} type={1}/>
+                        </CardColumns> 
+                        <Row>
                             <Col>
-                                <Label for="filterDays">Display data based on days:</Label>
-                                <Input type="select" name="select" id="filterDays" onChange={this.selectFilterDays} 
-                                disabled={filterBased !== "Days" ? true : false}>
+                                <h3 style={{textDecoration: 'underline'}}>Summary of Water Quality Data</h3>
+                                <Label for="filterDays">Display summary data for durations:</Label>
+                                <Input type="select" name="select" id="filterDays" onChange={this.selectFilterDays}>
                                     <option>1</option>
                                     <option>2</option>
                                     <option>3</option>
@@ -562,48 +573,16 @@ class DataView extends Component {
                                     <option>7</option>
                                 </Input>
                             </Col>
-                            <Col>
-                                <Label for="filterDate">Select the date:</Label><br/>
-                                <DatePicker
-                                    id='datePicker' 
-                                    dateFormat="dd/MM/yyyy"
-                                    selected={startDate}
-                                    disabled={filterBased !== "Days" ? true : false}
-                                    onChange={this.handleChange}
-                                    inputProps={{readOnly: true}}
-                                />
-                            </Col>
                         </Row>
-                    </FormGroup>
-                </Form>
-                <Input type="select" name="select" id="presentationSelect" onChange={this.setPresentation}>
-                    <option>Graph</option>
-                    <option>AnalyticsMap</option>
-                </Input>
-                <br/>
-                { 
-                    this.state.presentation === "Graph" ? 
-                        this.state.filterBased === "Days" ? 
-                            <CardColumns>
-                                <BarChart name={"Temperature/Day"} data={this.state.tempValuePerDay} date={this.state.dataTime} filterDays={filterDays} type={1}/> 
-                                <LineChart name={"Temperature"} data={this.state.tempValue} date={dateList} filterDays={filterDays} type={2}/>
-                                <BarChart name={"pH/Day"} data={this.state.pHValuePerDay} date={this.state.dataTime} filterDays={filterDays} type={1}/>
-                                <LineChart name={"pH"} data={this.state.pHValue} date={dateList} filterDays={filterDays} type={2}/>
-                                <BarChart name={"Dissolved Oxygen/Day"} data={this.state.dOValuePerDay} date={this.state.dataTime} filterDays={filterDays} type={1}/>
-                                <LineChart name={"Dissolved Oxygen"} data={this.state.dOValue} date={dateList} filterDays={filterDays} type={2}/>
-                                <BarChart name={"Electrical Conductivity/Day"} data={this.state.conducValuePerDay} date={this.state.dataTime} filterDays={filterDays} type={1}/>
-                                <LineChart name={"Electrical Conductivity/Salinity"} data={this.state.conducValue} date={dateList} filterDays={filterDays} type={2}/>
-                                <BarChart name={"Turbidity/Day"} data={this.state.turbValuePerDay} date={this.state.dataTime} filterDays={filterDays} type={1}/>
-                                <LineChart name={"Turbidity"} data={this.state.turbValue} date={dateList} filterDays={filterDays} type={2}/>
-                            </CardColumns>
-                            : 
-                            <CardColumns>
-                                <LineChart name={"Temperature"} data={this.state.tempValue}/>
-                                <LineChart name={"pH"} data={this.state.pHValue}/>
-                                <LineChart name={"Dissolve Oxygen"} data={this.state.dOValue}/>
-                                <LineChart name={"Electrical Conductivity/Salinity"} data={this.state.conducValue}/>
-                                <LineChart name={"Turbidity"} data={this.state.turbValue}/> 
-                            </CardColumns>    
+                        <br/>
+                        <CardColumns>
+                            <LineChart name={"Temperature"} data={this.state.tempValue} date={dateList} filterDays={filterDays} type={2}/>
+                            <LineChart name={"pH"} data={this.state.pHValue} date={dateList} filterDays={filterDays} type={2}/>
+                            <LineChart name={"Dissolved Oxygen"} data={this.state.dOValue} date={dateList} filterDays={filterDays} type={2}/>
+                            <LineChart name={"Electrical Conductivity/Salinity"} data={this.state.conducValue} date={dateList} filterDays={filterDays} type={2}/>
+                            <LineChart name={"Turbidity"} data={this.state.turbValue} date={dateList} filterDays={filterDays} type={2}/>
+                        </CardColumns> 
+                    </div>
                     :
                     <div>
                         <Card>

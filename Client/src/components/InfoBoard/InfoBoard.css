@@ -11,6 +11,10 @@
     background: #CEECF5;
 }
 
+.destInfo {
+    background: rgb(231, 250, 127);
+}
+
 .windInfo {
     background: #CEF6CE;
 }
