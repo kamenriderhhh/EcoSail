@@ -54,9 +54,13 @@ exports.getSensorNodes = (req, res) => {
 exports.getSensorHistData = (req, res) => {
   const reqStartDate = new Date(req.body.startDate);
   const reqEndDate = new Date(req.body.endDate);
-  SensorNodes.find({
-    date: {$gte: reqStartDate, $lte: reqEndDate},
-    boatID: JSON.stringify(req.body.boatID)
+  SensorNodes.find(
+    {
+      date: {$gte: reqStartDate, $lte: reqEndDate},
+      boatID: JSON.stringify(req.body.boatID)
+    }, 
+    {
+      sort: {date: 1} 
     }).then(sensorData => {
         res.json(sensorData); 
         //console.log(sensorData.length);
