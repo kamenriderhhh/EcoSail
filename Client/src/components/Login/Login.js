@@ -103,6 +103,18 @@ export default function Login(props) {
       else if(result.message === "User registered successfully!"){
         // Email registered successfully
         displayMessage(<span>User registered successfully</span>);
+        sendSignin(sgnup).then((result) => {     
+            displayMessage(<span>User registered successfully</span>);
+            //console.log("Access token: "+result.accessToken);
+            props.setToken(result.accessToken);
+    
+            getBoatCount().then((boatCount) => {
+              props.setBoatCount(parseInt(boatCount));
+              // After got the boat count then forward user to dashboard
+              // sleep to complete the token set state
+              setTimeout(() => {props.userLogin()}, 4000);
+            });
+        });
         //console.log("User registered successfully!");
       }
       else{
