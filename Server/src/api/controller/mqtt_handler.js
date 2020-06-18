@@ -83,7 +83,7 @@ class MqttHandler {
           else {
               delete alarmData.pHValue;
           }
-          if(ecValue>28){ // EC
+          if(ecValue>40){ // EC
               alarmMesg = alarmMesg.concat(" EC");
               sendAlarm = true;
           }
